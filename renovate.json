@@ -1,0 +1,15 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":automergePatch",
+    ":reviewer(TheMeinerLP)",
+    ":timezone(Europe/Berlin)",
+    "schedule:officeHours",
+    "schedule:automergeOfficeHours",
+    ":semanticCommits",
+    ":label(renovate)",
+    ":enableVulnerabilityAlerts"
+  ],
+  "rebaseWhen": "conflicted"
+}

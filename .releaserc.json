@@ -1,0 +1,31 @@
+{
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits"
+      }
+    ],
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/exec",
+      {
+        "verifyConditionsCmd": "./gradlew check",
+        "publishCmd": "./gradlew -Pversion=${nextRelease.version} publish && echo '${nextRelease.version}' > version.txt"
+      }
+    ],
+    "@semantic-release/git",
+    [
+      "@semantic-release/github",
+      {
+        "assets": [],
+        "labels": false,
+        "failTitle": false,
+        "failComment": false,
+        "successComment": false,
+        "releasedLabels": false,
+        "addReleases": false
+      }
+    ]
+  ]
+}

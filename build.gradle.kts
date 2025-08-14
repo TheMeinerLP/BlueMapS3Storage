@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    alias(libs.plugins.spotless)
 }
 
 dependencies {
@@ -17,5 +18,18 @@ tasks {
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+spotless {
+    java {
+        importOrder()
+        removeUnusedImports()
+        removeWildcardImports()
+
+        idea()
+        formatAnnotations()
+
+        licenseHeaderFile(rootProject.file(".spotless/Copyright.java"))
     }
 }

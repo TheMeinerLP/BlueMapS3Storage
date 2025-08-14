@@ -1,21 +1,16 @@
 package dev.themeinerlp.bluemap.s3.storage;
 
 import software.amazon.nio.spi.s3.S3FileSystemProvider;
+import software.amazon.nio.spi.s3.S3XFileSystemProvider;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.Path;
-import java.util.Map;
 import java.util.Objects;
 
 final class S3FileSystemFactory {
-    public record S3Fs(FileSystem fileSystem, Path bucketRoot, URI uri) {}
+    public record S3Fs(FileSystem fileSystem, URI uri) {}
 
-    private static final S3FileSystemProvider PROVIDER = new S3FileSystemProvider();
+    private static S3FileSystemProvider PROVIDER;
 
     private S3FileSystemFactory() {}
 
@@ -30,67 +25,27 @@ final class S3FileSystemFactory {
             final URI uri;
             if (!thirdParty) {
                 // AWS S3 – the provider uses the default region/credentials chain
-                uri = URI.create("s3://" + cfg.getBucketName() + "/");
+                PROVIDER = new S3FileSystemProvider();
+                System.setProperty("aws.region", cfg.getRegion() != null ? cfg.getRegion() : "us-east-1");
+                uri = URI.create("s3://" + cfg.getBucketName());
             } else {
-                // 3rd-Party (MinIO/Ceph/Wasabi, etc.) via s3x://
-                var ep = Endpoint.parse(cfg.getEndpointUrl());
-                String proto = pickProtocol(cfg, ep);
-                System.setProperty("s3.spi.endpoint-protocol", proto);
+                PROVIDER = new S3XFileSystemProvider();
+                var url = URI.create(cfg.getEndpointUrl());
+                System.setProperty("s3.spi.endpoint-protocol", url.toString().startsWith("https") ? "https" : "http");
+                System.setProperty("aws.region", cfg.getRegion() != null ? cfg.getRegion() : "us-east-1");
                 String userInfo = buildUserInfo(cfg);
-                uri = new URI("s3x", userInfo, ep.host, ep.portOrDefault(proto), "/" + cfg.getBucketName() + "/", null, null);
+                uri = new URI("s3x", userInfo, url.getHost(), url.getPort(), "/" + cfg.getBucketName(), null, null);
             }
-
-            FileSystem fs = getOrCreateFs(uri);
-            return new S3Fs(fs, fs.getPath("/"), uri);
+            System.out.println("Using S3 FileSystem Provider: " + PROVIDER.getClass().getName());
+            System.out.println("Using S3 URI: " + uri);
+            FileSystem fs =  PROVIDER.getFileSystem(uri);
+            return new S3Fs(fs, uri);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to build S3 FileSystem", e);
         }
     }
-
-    private static FileSystem getOrCreateFs(URI uri) {
-        // Work explicitly through the S3FileSystemProvider (no global registry)
-        try {
-            return PROVIDER.getFileSystem(uri);
-        } catch (FileSystemNotFoundException notFound) {
-            try {
-                return PROVIDER.newFileSystem(uri, Map.of());
-            } catch (java.nio.file.FileSystemAlreadyExistsException exists) {
-                return PROVIDER.getFileSystem(uri);
-            } catch (IOException e) {
-                throw new IllegalStateException("Failed to create S3 FileSystem for URI: " + uri, e);
-            } catch (Exception e) {
-                throw new IllegalStateException("Unexpected error while creating S3 FileSystem for URI: " + uri, e);
-            }
-        }
-    }
-
     private static String buildUserInfo(S3Configuration cfg) {
         if (cfg.getAccessKeyId() == null || cfg.getSecretAccessKey() == null) return null;
-        return cfg.getAccessKeyId() + ":" + URLEncoder.encode(cfg.getSecretAccessKey(), StandardCharsets.UTF_8);
-    }
-
-    private static String pickProtocol(S3Configuration cfg, Endpoint ep) {
-        String hint = cfg.getPathStyleAccessEnabled();
-        if (hint != null && (hint.equalsIgnoreCase("http") || hint.equalsIgnoreCase("https"))) return hint.toLowerCase();
-        if (ep.port != null && (ep.port == 9000 || ep.port == 9001)) return "http";
-        return "https";
-    }
-
-    private record Endpoint(String host, Integer port) {
-        static Endpoint parse(String raw) {
-            String v = raw.trim();
-            if (v.contains("://")) {
-                URI u = URI.create(v);
-                if (u.getHost() == null) throw new IllegalArgumentException("Invalid endpoint: " + raw);
-                return new Endpoint(u.getHost(), u.getPort() == -1 ? null : u.getPort());
-            }
-            int idx = v.lastIndexOf(':');
-            if (idx > -1 && idx == v.indexOf(':')) {
-                try { return new Endpoint(v.substring(0, idx), Integer.parseInt(v.substring(idx + 1))); }
-                catch (NumberFormatException e) { return new Endpoint(v.substring(0, idx), null); }
-            }
-            return new Endpoint(v, null);
-        }
-        int portOrDefault(String proto) { return port != null ? port : ("http".equalsIgnoreCase(proto) ? 80 : 443); }
+        return cfg.getAccessKeyId() + ":" + cfg.getSecretAccessKey();
     }
 }

@@ -23,14 +23,11 @@ import de.bluecolored.bluemap.core.storage.MapStorage;
 import de.bluecolored.bluemap.core.storage.Storage;
 import de.bluecolored.bluemap.core.storage.compression.Compression;
 import de.bluecolored.bluemap.core.storage.file.FileMapStorage;
+
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 public final class S3Storage implements Storage {
@@ -54,26 +51,8 @@ public final class S3Storage implements Storage {
         }
         
         try {
-            // Create S3 filesystem configuration
-            Map<String, String> env = new HashMap<>();
-            env.put("access-key", configuration.getAccessKeyId());
-            env.put("secret-key", configuration.getSecretAccessKey());
-            env.put("region", configuration.getRegion());
-            
-            // Add endpoint URL if provided
-            if (configuration.getEndpointUrl() != null && !configuration.getEndpointUrl().isEmpty()) {
-                env.put("endpoint", configuration.getEndpointUrl());
-            }
-            
-            // Add path style access if enabled
-            if (configuration.getPathStyleAccessEnabled() != null && 
-                configuration.getPathStyleAccessEnabled().equalsIgnoreCase("true")) {
-                env.put("path-style-access", "true");
-            }
-            
-            // Create S3 filesystem
-            URI uri = URI.create("s3://" + configuration.getBucketName());
-            s3FileSystem = FileSystems.newFileSystem(uri, env);
+            S3FileSystemFactory.S3Fs handle = S3FileSystemFactory.build(configuration);
+            this.s3FileSystem = handle.fileSystem();
         } catch (Exception e) {
             throw new IOException("Failed to initialize S3 storage", e);
         }

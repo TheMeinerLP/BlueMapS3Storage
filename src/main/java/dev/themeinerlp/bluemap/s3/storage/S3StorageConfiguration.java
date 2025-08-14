@@ -2,8 +2,10 @@ package dev.themeinerlp.bluemap.s3.storage;
 
 import de.bluecolored.bluemap.common.config.ConfigurationException;
 import de.bluecolored.bluemap.common.config.storage.StorageConfig;
+import de.bluecolored.bluemap.common.debug.DebugDump;
 import de.bluecolored.bluemap.core.storage.Storage;
 import de.bluecolored.bluemap.core.storage.compression.Compression;
+import de.bluecolored.bluemap.core.util.Key;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
@@ -20,13 +22,18 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
     private String accessKeyId = "bluemap";
     
     @Comment("The AWS secret access key for authentication")
+    @DebugDump(exclude = true)
     private String secretAccessKey = "bluemap-secret";
     
     @Comment("Optional: The endpoint URL for S3-compatible services (leave empty for AWS S3)")
+    @DebugDump(exclude = true)
     private String endpointUrl = "http://localhost:9000";
     
     @Comment("Optional: Enable path-style access instead of virtual-hosted style (true/false)")
     private String pathStyleAccessEnabled = "true";
+
+    @Comment("The compression type to use for storing data (default: gzip)")
+    private String compression = "gzip"; // Default compression type
     
     @Override
     public Storage createStorage() throws ConfigurationException {
@@ -50,7 +57,11 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
         // Create and return the S3Storage instance
         // Using null for Compression for now
         // In a real implementation, we would need to find the proper way to create a Compression instance
-        return new S3Storage(this, null);
+        return new S3Storage(this, getCompression());
+    }
+
+    public Compression getCompression() {
+        return Compression.REGISTRY.get(Key.bluemap(compression));
     }
 
     @Override

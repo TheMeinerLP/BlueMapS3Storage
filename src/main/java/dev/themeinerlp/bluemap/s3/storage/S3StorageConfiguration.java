@@ -71,9 +71,7 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
             throw new ConfigurationException("AWS secret access key is required");
         }
         
-        // Create and return the S3Storage instance
-        // Using null for Compression for now
-        // In a real implementation, we would need to find the proper way to create a Compression instance
+        // Create and return the S3Storage instance with the configured compression
         return new S3Storage(this, getCompression());
     }
 

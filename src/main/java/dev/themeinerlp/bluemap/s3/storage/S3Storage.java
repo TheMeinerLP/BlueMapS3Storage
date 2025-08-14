@@ -23,7 +23,6 @@ import de.bluecolored.bluemap.core.storage.MapStorage;
 import de.bluecolored.bluemap.core.storage.Storage;
 import de.bluecolored.bluemap.core.storage.compression.Compression;
 import de.bluecolored.bluemap.core.storage.file.FileMapStorage;
-
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;

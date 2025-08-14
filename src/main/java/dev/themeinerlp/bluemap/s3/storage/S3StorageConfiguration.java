@@ -23,10 +23,9 @@ import de.bluecolored.bluemap.common.debug.DebugDump;
 import de.bluecolored.bluemap.core.storage.Storage;
 import de.bluecolored.bluemap.core.storage.compression.Compression;
 import de.bluecolored.bluemap.core.util.Key;
+import java.util.Optional;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
-
-import java.util.Optional;
 
 @ConfigSerializable
 public final class S3StorageConfiguration extends StorageConfig implements S3Configuration {

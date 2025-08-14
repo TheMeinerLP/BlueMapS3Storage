@@ -52,24 +52,13 @@ public final class S3Storage implements Storage {
         try {
             S3FileSystemFactory.S3Fs handle = S3FileSystemFactory.build(configuration);
             this.s3FileSystem = handle.fileSystem();
-            if (!Files.exists(getRooPath())) {
-                Files.createDirectories(getRooPath());
-            }
-            // Preload the map storages into the cache
-            Files.list(getRooPath())
-                    .filter(Files::isDirectory)
-                    .forEach(path -> {
-                        String mapId = path.getFileName().toString();
-                        System.out.println("Loading map storage for: " + mapId);
-                        mapStorages.get(mapId); // This will create the FileMapStorage if it doesn't exist
-                    });
         } catch (Exception e) {
             throw new IOException("Failed to initialize S3 storage", e);
         }
     }
 
     private Path getRooPath() {
-        return s3FileSystem.getPath(this.configuration.getRootPath()).toAbsolutePath().normalize();
+        return s3FileSystem.getPath(this.configuration.getRootPath());
     }
 
     public FileMapStorage create(String mapId) {

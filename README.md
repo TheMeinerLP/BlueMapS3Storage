@@ -22,7 +22,6 @@ This addon is particularly useful for:
 
 - Store BlueMap data in any S3-compatible storage service
 - Configure custom endpoints for self-hosted S3 solutions
-- Support for path-style access for compatibility with various S3 implementations
 - Seamless integration with BlueMap's storage system
 
 ## Requirements
@@ -65,7 +64,7 @@ compression: gzip
 bucket-name: "bluemap-storage"
 
 # AWS region or "Minio" for MinIO
-region: "us-east-1"
+region: "Minio"
 
 # S3 credentials
 access-key-id: "your-access-key"
@@ -75,9 +74,9 @@ secret-access-key: "your-secret-key"
 # Leave empty for AWS S3
 endpoint-url: "http://localhost:9000"
 
-# Optional: Enable path-style access instead of virtual-hosted style
-# Set to "true" for MinIO and some other S3-compatible services
-path-style-access-enabled: "true"
+# Optional: The root path in the S3 bucket where BlueMap data will be stored
+# Default is "." (root of the bucket)
+root-path: "."
 ```
 
 ### Configuration Options
@@ -87,11 +86,11 @@ path-style-access-enabled: "true"
 | `storage-type` | The storage type identifier (don't change this value) | `themeinerlp:s3` |
 | `compression` | The compression type to use for storing data (options: "gzip", "zstd", "deflate", "none") | `gzip` |
 | `bucket-name` | The name of the S3 bucket to use | `bluemap-storage` |
-| `region` | The AWS region where the bucket is located | `us-east-1` |
+| `region` | The AWS region where the bucket is located | `Minio` |
 | `access-key-id` | The AWS access key ID for authentication | `bluemap` |
 | `secret-access-key` | The AWS secret access key for authentication | `bluemap-secret` |
 | `endpoint-url` | Optional: The endpoint URL for S3-compatible services (leave empty for AWS S3) | `http://localhost:9000` |
-| `path-style-access-enabled` | Optional: Enable path-style access instead of virtual-hosted style (true/false) | `true` |
+| `root-path` | Optional: The root path in the S3 bucket where BlueMap data will be stored | `.` |
 
 ## Usage Examples
 
@@ -110,7 +109,7 @@ region: "us-east-1"
 access-key-id: "AKIAIOSFODNN7EXAMPLE"
 secret-access-key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 endpoint-url: ""
-path-style-access-enabled: "false"
+root-path: "."
 ```
 
 ### MinIO
@@ -128,7 +127,7 @@ region: "us-east-1"
 access-key-id: "minioadmin"
 secret-access-key: "minioadmin"
 endpoint-url: "http://minio-server:9000"
-path-style-access-enabled: "true"
+root-path: "."
 ```
 
 ### DigitalOcean Spaces
@@ -146,7 +145,7 @@ region: "nyc3"
 access-key-id: "your-spaces-key"
 secret-access-key: "your-spaces-secret"
 endpoint-url: "https://nyc3.digitaloceanspaces.com"
-path-style-access-enabled: "false"
+root-path: "."
 ```
 
 ## Building from Source
@@ -158,7 +157,7 @@ path-style-access-enabled: "false"
 
 2. Build the project using Gradle:
    ```
-   ./gradlew build
+   ./gradlew shadowJar
    ```
 
 3. The built JAR file will be located in the `build/libs` directory.

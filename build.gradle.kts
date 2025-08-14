@@ -5,6 +5,8 @@ plugins {
 
 dependencies {
     implementation(libs.nio.spi.s3)
+    compileOnly(libs.bluemap.core)
+    compileOnly(libs.bluemap.common)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platform.launcher)

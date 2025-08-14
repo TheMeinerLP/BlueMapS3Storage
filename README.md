@@ -22,6 +22,7 @@ This addon is particularly useful for:
 
 - Store BlueMap data in any S3-compatible storage service
 - Configure custom endpoints for self-hosted S3 solutions
+- Support for path-style access for compatibility with various S3 implementations (like MinIO)
 - Seamless integration with BlueMap's storage system
 
 ## Requirements
@@ -77,6 +78,10 @@ endpoint-url: "http://localhost:9000"
 # Optional: The root path in the S3 bucket where BlueMap data will be stored
 # Default is "." (root of the bucket)
 root-path: "."
+
+# Optional: Force path style access for S3 (needed for MinIO)
+# Default is false (use virtual-hosted style)
+force-path-style: true
 ```
 
 ### Configuration Options
@@ -91,6 +96,7 @@ root-path: "."
 | `secret-access-key` | The AWS secret access key for authentication | `bluemap-secret` |
 | `endpoint-url` | Optional: The endpoint URL for S3-compatible services (leave empty for AWS S3) | `http://localhost:9000` |
 | `root-path` | Optional: The root path in the S3 bucket where BlueMap data will be stored | `.` |
+| `force-path-style` | Optional: Force path style access for S3 (needed for MinIO) | `false` |
 
 ## Usage Examples
 
@@ -110,6 +116,7 @@ access-key-id: "AKIAIOSFODNN7EXAMPLE"
 secret-access-key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 endpoint-url: ""
 root-path: "."
+force-path-style: false
 ```
 
 ### MinIO
@@ -128,6 +135,7 @@ access-key-id: "minioadmin"
 secret-access-key: "minioadmin"
 endpoint-url: "http://minio-server:9000"
 root-path: "."
+force-path-style: true
 ```
 
 ### DigitalOcean Spaces
@@ -146,6 +154,7 @@ access-key-id: "your-spaces-key"
 secret-access-key: "your-spaces-secret"
 endpoint-url: "https://nyc3.digitaloceanspaces.com"
 root-path: "."
+force-path-style: false
 ```
 
 ## Building from Source

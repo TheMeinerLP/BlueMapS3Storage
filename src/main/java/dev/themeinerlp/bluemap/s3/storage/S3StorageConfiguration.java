@@ -52,6 +52,9 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
 
     @Comment("The root path in the S3 bucket (default: empty, meaning the root of the bucket)")
     private String rootPath = ".";
+
+    @Comment("Force path style access for S3 (default: false, use virtual-hosted style)")
+    private boolean forcePathStyle = false;
     
     @Override
     public Storage createStorage() throws ConfigurationException {
@@ -111,5 +114,10 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
                 .map(String::trim)
                 .filter(path -> !path.isEmpty())
                 .orElse(".");
+    }
+
+    @Override
+    public boolean forcePathStyle() {
+        return forcePathStyle;
     }
 }

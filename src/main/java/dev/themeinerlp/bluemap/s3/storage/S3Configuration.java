@@ -31,4 +31,6 @@ public sealed interface S3Configuration permits S3StorageConfiguration {
 
     String getRootPath();
 
+    boolean forcePathStyle();
+
 }

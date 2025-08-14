@@ -17,14 +17,14 @@
  */
 package dev.themeinerlp.bluemap.s3.storage;
 
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.util.Objects;
 import software.amazon.nio.spi.s3.S3FileSystemProvider;
 import software.amazon.nio.spi.s3.S3XFileSystemProvider;
 
-final class S3FileSystemFactory {
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.util.Objects;
 
+final class S3FileSystemFactory {
     private static final String AWS_REGION_KEY = "aws.region";
     public static final String DEFAULT_AWS_REGION = "us-east-1";
 
@@ -43,20 +43,28 @@ final class S3FileSystemFactory {
         final boolean thirdParty = cfg.getEndpointUrl() != null && !cfg.getEndpointUrl().isBlank();
         try {
             final URI uri;
+            System.setProperty(AWS_REGION_KEY, cfg.getRegion() != null ? cfg.getRegion() : DEFAULT_AWS_REGION);
+            System.setProperty("aws.accessKeyId", cfg.getAccessKeyId());
+            System.setProperty("aws.secretAccessKey", cfg.getSecretAccessKey());
             if (thirdParty) {
-                PROVIDER = new S3XFileSystemProvider();
                 var url = URI.create(cfg.getEndpointUrl());
-                System.setProperty("s3.spi.endpoint-protocol", url.toString().startsWith("https") ? "https" : "http");
-                System.setProperty(AWS_REGION_KEY, cfg.getRegion() != null ? cfg.getRegion() : DEFAULT_AWS_REGION);
+                if (!url.toString().startsWith("https")) {
+                    System.setProperty("s3.spi.endpoint-protocol", "http");
+                }
+                if (cfg.forcePathStyle()) {
+                    System.setProperty("s3.spi.force-path-style", "true");
+                }
+                PROVIDER = new S3XFileSystemProvider();
                 String userInfo = buildUserInfo(cfg);
                 uri = new URI("s3x", userInfo, url.getHost(), url.getPort(), "/" + cfg.getBucketName(), null, null);
             } else {
                 // AWS S3 – the provider uses the default region/credentials chain
                 PROVIDER = new S3FileSystemProvider();
-                System.setProperty(AWS_REGION_KEY, cfg.getRegion() != null ? cfg.getRegion() : DEFAULT_AWS_REGION);
-                String userInfo = buildUserInfo(cfg);
-                uri = new URI("s3", userInfo,"/" + cfg.getBucketName(), null, null);
+
+                uri = new URI("s3","/" + cfg.getBucketName(), null, null);
             }
+            System.out.println("Using S3 FileSystem Provider: " + PROVIDER.getClass().getName());
+            System.out.println("S3 URI: " + uri);
             FileSystem fs =  PROVIDER.getFileSystem(uri);
             return new S3Fs(fs, uri);
         } catch (Exception e) {

@@ -38,7 +38,8 @@ final class S3FileSystemFactory {
                 // AWS S3 – the provider uses the default region/credentials chain
                 PROVIDER = new S3FileSystemProvider();
                 System.setProperty(AWS_REGION_KEY, cfg.getRegion() != null ? cfg.getRegion() : DEFAULT_AWS_REGION);
-                uri = URI.create("s3://" + cfg.getBucketName());
+                String userInfo = buildUserInfo(cfg);
+                uri = new URI("s3", userInfo,"/" + cfg.getBucketName(), null, null);
             }
             FileSystem fs =  PROVIDER.getFileSystem(uri);
             return new S3Fs(fs, uri);

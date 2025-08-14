@@ -26,6 +26,8 @@ import de.bluecolored.bluemap.core.util.Key;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
+import java.util.Optional;
+
 @ConfigSerializable
 public final class S3StorageConfiguration extends StorageConfig implements S3Configuration {
     
@@ -45,12 +47,12 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
     @Comment("Optional: The endpoint URL for S3-compatible services (leave empty for AWS S3)")
     @DebugDump(exclude = true)
     private String endpointUrl = "http://localhost:9000";
-    
-    @Comment("Optional: Enable path-style access instead of virtual-hosted style (true/false)")
-    private String pathStyleAccessEnabled = "true";
 
     @Comment("The compression type to use for storing data (default: gzip)")
     private String compression = "gzip"; // Default compression type
+
+    @Comment("The root path in the S3 bucket (default: empty, meaning the root of the bucket)")
+    private String rootPath = ".";
     
     @Override
     public Storage createStorage() throws ConfigurationException {
@@ -105,7 +107,10 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
     }
 
     @Override
-    public String getPathStyleAccessEnabled() {
-        return pathStyleAccessEnabled;
+    public String getRootPath() {
+        return Optional.ofNullable(rootPath)
+                .map(String::trim)
+                .filter(path -> !path.isEmpty())
+                .orElse(".");
     }
 }

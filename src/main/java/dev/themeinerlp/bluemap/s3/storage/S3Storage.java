@@ -58,7 +58,7 @@ public final class S3Storage implements Storage {
     }
 
     private Path getRooPath() {
-        return s3FileSystem.getPath(".").toAbsolutePath().normalize();
+        return s3FileSystem.getPath(this.configuration.getRootPath()).toAbsolutePath().normalize();
     }
 
     public FileMapStorage create(String mapId) {

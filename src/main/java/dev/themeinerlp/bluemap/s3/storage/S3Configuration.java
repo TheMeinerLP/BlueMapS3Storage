@@ -29,6 +29,6 @@ public sealed interface S3Configuration permits S3StorageConfiguration {
 
     String getEndpointUrl();
 
-    String getPathStyleAccessEnabled();
+    String getRootPath();
 
 }

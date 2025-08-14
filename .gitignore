@@ -40,3 +40,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### test data ###
+test-server/
+docker-local-minio/minio

@@ -1,0 +1,4 @@
+{
+  "id": "S3Storage",
+  "entrypoint": "dev.themeinerlp.bluemap.s3.S3StorageAddon"
+}

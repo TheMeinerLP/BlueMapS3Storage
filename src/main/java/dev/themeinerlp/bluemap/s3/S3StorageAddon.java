@@ -1,4 +1,8 @@
 package dev.themeinerlp.bluemap.s3;
 
-public class S3StorageAddon {
+public final class S3StorageAddon implements Runnable {
+    @Override
+    public void run() {
+
+    }
 }

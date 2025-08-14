@@ -17,12 +17,11 @@
  */
 package dev.themeinerlp.bluemap.s3.storage;
 
-import software.amazon.nio.spi.s3.S3FileSystemProvider;
-import software.amazon.nio.spi.s3.S3XFileSystemProvider;
-
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.util.Objects;
+import software.amazon.nio.spi.s3.S3FileSystemProvider;
+import software.amazon.nio.spi.s3.S3XFileSystemProvider;
 
 final class S3FileSystemFactory {
     private static final String AWS_REGION_KEY = "aws.region";

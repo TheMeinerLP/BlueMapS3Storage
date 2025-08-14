@@ -34,98 +34,119 @@ This addon is particularly useful for:
 ## Installation
 
 1. Download the latest release of BlueMapS3Storage from the [releases page](https://github.com/TheMeinerLP/BlueMapS3Storage/releases)
-2. Place the JAR file in the `plugins/BlueMap/addons` directory of your server
+2. Place the JAR file in the `plugins/BlueMap/packs` directory of your server
 3. Restart your server or reload BlueMap
 
 ## Configuration
 
-To use S3 storage with BlueMap, you need to modify your BlueMap configuration to use the S3 storage type. Add the following to your `bluemap.conf` file:
+To use S3 storage with BlueMap, you need to create or modify the S3 storage configuration file. Create a file named `s3.conf` in the `plugins/BlueMap/storages` directory with the following content:
 
 ```hocon
-storage {
-  type: "themeinerlp:s3"
-  
-  # S3 bucket name
-  bucketName: "bluemap-storage"
-  
-  # AWS region or "Minio" for MinIO
-  region: "us-east-1"
-  
-  # S3 credentials
-  accessKeyId: "your-access-key"
-  secretAccessKey: "your-secret-key"
-  
-  # Optional: Custom endpoint URL for S3-compatible services
-  # Leave empty for AWS S3
-  endpointUrl: "http://localhost:9000"
-  
-  # Optional: Enable path-style access instead of virtual-hosted style
-  # Set to "true" for MinIO and some other S3-compatible services
-  pathStyleAccessEnabled: "true"
-  
-  # Optional: Compression type to use for storing data
-  # Options include: "gzip" (default), "none", or other compression types supported by BlueMap
-  compression: "gzip"
-}
+##                          ##
+##         BlueMap          ##
+##      Storage-Config      ##
+##                          ##
+
+# The storage-type of this storage.
+# Depending on this setting, different config-entries are allowed/expected in this config file.
+# Don't change this value! (If you want a different storage-type, check out the other example-configs)
+storage-type: "themeinerlp:s3"
+
+# The compression-type that bluemap will use to compress generated map-data.
+# Available compression-types are:
+#  - gzip
+#  - zstd
+#  - deflate
+#  - none
+# The default is: gzip
+compression: gzip
+
+# The S3 storage
+bucket-name: "bluemap-storage"
+
+# AWS region or "Minio" for MinIO
+region: "us-east-1"
+
+# S3 credentials
+access-key-id: "your-access-key"
+secret-access-key: "your-secret-key"
+
+# Optional: Custom endpoint URL for S3-compatible services
+# Leave empty for AWS S3
+endpoint-url: "http://localhost:9000"
+
+# Optional: Enable path-style access instead of virtual-hosted style
+# Set to "true" for MinIO and some other S3-compatible services
+path-style-access-enabled: "true"
 ```
 
 ### Configuration Options
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `bucketName` | The name of the S3 bucket to use | `bluemap-storage` |
-| `region` | The AWS region where the bucket is located | `Minio` |
-| `accessKeyId` | The AWS access key ID for authentication | `bluemap` |
-| `secretAccessKey` | The AWS secret access key for authentication | `bluemap-secret` |
-| `endpointUrl` | Optional: The endpoint URL for S3-compatible services (leave empty for AWS S3) | `http://localhost:9000` |
-| `pathStyleAccessEnabled` | Optional: Enable path-style access instead of virtual-hosted style (true/false) | `true` |
-| `compression` | Optional: The compression type to use for storing data (options: "gzip", "none", or other types supported by BlueMap) | `gzip` |
+| `storage-type` | The storage type identifier (don't change this value) | `themeinerlp:s3` |
+| `compression` | The compression type to use for storing data (options: "gzip", "zstd", "deflate", "none") | `gzip` |
+| `bucket-name` | The name of the S3 bucket to use | `bluemap-storage` |
+| `region` | The AWS region where the bucket is located | `us-east-1` |
+| `access-key-id` | The AWS access key ID for authentication | `bluemap` |
+| `secret-access-key` | The AWS secret access key for authentication | `bluemap-secret` |
+| `endpoint-url` | Optional: The endpoint URL for S3-compatible services (leave empty for AWS S3) | `http://localhost:9000` |
+| `path-style-access-enabled` | Optional: Enable path-style access instead of virtual-hosted style (true/false) | `true` |
 
 ## Usage Examples
 
 ### AWS S3
 
 ```hocon
-storage {
-  type: "themeinerlp:s3"
-  bucketName: "my-bluemap-bucket"
-  region: "us-east-1"
-  accessKeyId: "AKIAIOSFODNN7EXAMPLE"
-  secretAccessKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-  endpointUrl: ""
-  pathStyleAccessEnabled: "false"
-  compression: "gzip"
-}
+##                          ##
+##         BlueMap          ##
+##      Storage-Config      ##
+##                          ##
+
+storage-type: "themeinerlp:s3"
+compression: gzip
+bucket-name: "my-bluemap-bucket"
+region: "us-east-1"
+access-key-id: "AKIAIOSFODNN7EXAMPLE"
+secret-access-key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+endpoint-url: ""
+path-style-access-enabled: "false"
 ```
 
 ### MinIO
 
 ```hocon
-storage {
-  type: "themeinerlp:s3"
-  bucketName: "bluemap"
-  region: "Minio"
-  accessKeyId: "minioadmin"
-  secretAccessKey: "minioadmin"
-  endpointUrl: "http://minio-server:9000"
-  pathStyleAccessEnabled: "true"
-  compression: "gzip"
-}
+##                          ##
+##         BlueMap          ##
+##      Storage-Config      ##
+##                          ##
+
+storage-type: "themeinerlp:s3"
+compression: gzip
+bucket-name: "bluemap"
+region: "us-east-1"
+access-key-id: "minioadmin"
+secret-access-key: "minioadmin"
+endpoint-url: "http://minio-server:9000"
+path-style-access-enabled: "true"
 ```
 
 ### DigitalOcean Spaces
 
 ```hocon
-storage {
-  type: "themeinerlp:s3"
-  bucketName: "bluemap-maps"
-  region: "nyc3"
-  accessKeyId: "your-spaces-key"
-  secretAccessKey: "your-spaces-secret"
-  endpointUrl: "https://nyc3.digitaloceanspaces.com"
-  pathStyleAccessEnabled: "false"
-  compression: "gzip"
-}
+##                          ##
+##         BlueMap          ##
+##      Storage-Config      ##
+##                          ##
+
+storage-type: "themeinerlp:s3"
+compression: gzip
+bucket-name: "bluemap-maps"
+region: "nyc3"
+access-key-id: "your-spaces-key"
+secret-access-key: "your-spaces-secret"
+endpoint-url: "https://nyc3.digitaloceanspaces.com"
+path-style-access-enabled: "false"
 ```
 
 ## Building from Source

@@ -11,14 +11,19 @@
       "@semantic-release/exec",
       {
         "verifyConditionsCmd": "./gradlew check",
-        "publishCmd": "./gradlew -Pversion=${nextRelease.version} publish && echo '${nextRelease.version}' > version.txt"
+        "publishCmd": "./gradlew -Pversion=${nextRelease.version} shadowJar"
       }
     ],
     "@semantic-release/git",
     [
       "@semantic-release/github",
       {
-        "assets": [],
+        "assets": [
+          {
+            "path": "build/libs/BlueMapS3Storage-*.jar",
+            "label": "BlueMapS3Storage.jar"
+          }
+        ],
         "labels": false,
         "failTitle": false,
         "failComment": false,

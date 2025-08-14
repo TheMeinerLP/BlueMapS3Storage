@@ -1,6 +1,7 @@
 plugins {
     id("java")
     alias(libs.plugins.spotless)
+    alias(libs.plugins.shadow)
 }
 
 dependencies {
@@ -15,6 +16,9 @@ dependencies {
 tasks {
     test {
         useJUnitPlatform()
+    }
+    shadowJar {
+        archiveClassifier.set("")
     }
 }
 

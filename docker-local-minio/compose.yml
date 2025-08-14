@@ -6,8 +6,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: BLUEMAP
-      MINIO_ROOT_PASSWORD: BLUEMAP
+      - MINIO_ROOT_USER=bluemap
+      - MINIO_ROOT_PASSWORD=bluemap_s3_impl
     volumes:
-      - ~/minio/data:/data
+      - ./minio/data:/data
     command: server /data --console-address ":9001"

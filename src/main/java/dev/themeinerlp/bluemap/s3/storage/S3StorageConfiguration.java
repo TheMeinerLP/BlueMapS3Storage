@@ -11,22 +11,22 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 public final class S3StorageConfiguration extends StorageConfig implements S3Configuration {
     
     @Comment("The name of the S3 bucket to use")
-    private String bucketName = "";
+    private String bucketName = "bluemap-storage";
     
     @Comment("The AWS region where the bucket is located")
-    private String region = "";
+    private String region = "Minio";
     
     @Comment("The AWS access key ID for authentication")
-    private String accessKeyId = "";
+    private String accessKeyId = "bluemap";
     
     @Comment("The AWS secret access key for authentication")
-    private String secretAccessKey = "";
+    private String secretAccessKey = "bluemap-secret";
     
     @Comment("Optional: The endpoint URL for S3-compatible services (leave empty for AWS S3)")
-    private String endpointUrl = "";
+    private String endpointUrl = "http://localhost:9000";
     
     @Comment("Optional: Enable path-style access instead of virtual-hosted style (true/false)")
-    private String pathStyleAccessEnabled = "false";
+    private String pathStyleAccessEnabled = "true";
     
     @Override
     public Storage createStorage() throws ConfigurationException {

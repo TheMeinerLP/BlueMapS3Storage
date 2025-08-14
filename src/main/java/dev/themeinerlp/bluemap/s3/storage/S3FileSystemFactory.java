@@ -62,8 +62,6 @@ final class S3FileSystemFactory {
 
                 uri = new URI("s3","/" + cfg.getBucketName(), null, null);
             }
-            System.out.println("Using S3 FileSystem Provider: " + PROVIDER.getClass().getName());
-            System.out.println("S3 URI: " + uri);
             FileSystem fs =  PROVIDER.getFileSystem(uri);
             return new S3Fs(fs, uri);
         } catch (Exception e) {

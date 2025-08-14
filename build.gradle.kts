@@ -27,7 +27,6 @@ spotless {
         removeUnusedImports()
         removeWildcardImports()
 
-        idea()
         formatAnnotations()
 
         licenseHeaderFile(rootProject.file(".spotless/Copyright.java"))

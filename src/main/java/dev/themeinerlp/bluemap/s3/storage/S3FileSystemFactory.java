@@ -2,12 +2,14 @@ package dev.themeinerlp.bluemap.s3.storage;
 
 import software.amazon.nio.spi.s3.S3FileSystemProvider;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Objects;
 
 final class S3FileSystemFactory {
@@ -54,6 +56,10 @@ final class S3FileSystemFactory {
                 return PROVIDER.newFileSystem(uri, Map.of());
             } catch (java.nio.file.FileSystemAlreadyExistsException exists) {
                 return PROVIDER.getFileSystem(uri);
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to create S3 FileSystem for URI: " + uri, e);
+            } catch (Exception e) {
+                throw new IllegalStateException("Unexpected error while creating S3 FileSystem for URI: " + uri, e);
             }
         }
     }

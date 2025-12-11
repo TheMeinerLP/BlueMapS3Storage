@@ -32,11 +32,21 @@ This addon is particularly useful for:
 - Access to an S3-compatible storage service
 
 ## Installation
+### Spigot/Paper
 
 1. Download the latest release of BlueMapS3Storage from the [releases page](https://github.com/TheMeinerLP/BlueMapS3Storage/releases)
-2. Place the JAR file in the `plugins/BlueMap/packs` directory of your server
+2. Place the JAR file in the `./plugins/BlueMap/packs/` directory of your server
 3. Restart your server or reload BlueMap
 
+### Sponge, Forge, Fabric
+1. Download the latest release of BlueMapS3Storage from the [releases page](https://github.com/TheMeinerLP/BlueMapS3Storage/releases)
+2. Place the JAR file in the `./config/bluemap/packs/` directory of your server
+3. Restart your server or reload BlueMap
+
+### CLI
+1. Download the latest release of BlueMapS3Storage from the [releases page](https://github.com/TheMeinerLP/BlueMapS3Storage/releases)
+2. Place the JAR file in the `./config/packs/` directory of your server
+3. Restart your server or reload BlueMap
 ## Configuration
 
 To use S3 storage with BlueMap, you need to create or modify the S3 storage configuration file. Create a file named `s3.conf` in the `plugins/BlueMap/storages` directory with the following content:

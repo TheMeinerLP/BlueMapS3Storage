@@ -11,7 +11,7 @@ dependencyResolutionManagement {
             version("spotless", "8.2.1")
             version("aws-java-nio-spi-for-s3", "2.3.0")
             version("bluemap", "5.3")
-            version("shadow", "9.3.1")
+            version("shadow", "9.3.2")
 
             library("nio-spi-s3", "software.amazon.nio.s3", "aws-java-nio-spi-for-s3").versionRef("aws-java-nio-spi-for-s3")
             library("bluemap.core", "de.bluecolored.bluemap", "BlueMapCore").versionRef("bluemap")

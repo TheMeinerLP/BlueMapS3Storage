@@ -9,7 +9,7 @@ dependencyResolutionManagement {
         create("libs") {
             version("junit", "6.0.3")
             version("spotless", "8.3.0")
-            version("aws-java-nio-spi-for-s3", "2.3.0")
+            version("aws-java-nio-spi-for-s3", "2.5.0")
             version("bluemap", "5.3")
             version("shadow", "9.3.2")
 

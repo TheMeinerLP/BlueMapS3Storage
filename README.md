@@ -1,30 +1,11 @@
 # BlueMapS3Storage
 
-A storage addon for [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap) that enables storing map data in S3-compatible storage services.
+A storage addon for [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap) that stores map data
+in S3-compatible storage services (Amazon S3, Cloudflare R2, MinIO, DigitalOcean Spaces,
+Backblaze B2, or anything else that speaks the S3 API) instead of the local filesystem.
 
-## Overview
-
-BlueMapS3Storage is an addon for BlueMap that provides the ability to store map data in S3-compatible storage services, such as:
-
-- Amazon S3
-- Cloudflare R2 (see [docs/cloudflare-r2.md](docs/cloudflare-r2.md) for R2-specific setup)
-- MinIO
-- DigitalOcean Spaces
-- Backblaze B2
-- Any other S3-compatible storage service
-
-This addon is particularly useful for:
-- Servers with distributed architectures
-- Environments where local storage is limited or not persistent
-- Setups that require high availability and redundancy
-- Multi-server networks that need to share the same map data
-
-## Features
-
-- Store BlueMap data in any S3-compatible storage service
-- Configure custom endpoints for self-hosted S3 solutions
-- Support for path-style access for compatibility with various S3 implementations (like MinIO)
-- Seamless integration with BlueMap's storage system
+Useful for distributed server architectures, environments without persistent local storage, and
+multi-server networks that need to share the same map data.
 
 ## Requirements
 
@@ -32,181 +13,26 @@ This addon is particularly useful for:
 - Java 21 or higher
 - Access to an S3-compatible storage service
 
-## Installation
-### Spigot/Paper
+## Quick start
 
-1. Download the latest release of BlueMapS3Storage from the [releases page](https://github.com/TheMeinerLP/BlueMapS3Storage/releases)
-2. Place the JAR file in the `./plugins/BlueMap/packs/` directory of your server
-3. Restart your server or reload BlueMap
+1. Download the latest release from the [releases page](https://github.com/TheMeinerLP/BlueMapS3Storage/releases)
+   and drop the jar in `./plugins/BlueMap/packs/` (Spigot/Paper), `./config/bluemap/packs/`
+   (Sponge/Forge/Fabric), or `./config/packs/` (CLI).
+2. Create a storage config file with at least `storage-type`, `bucket-name`, `access-key-id`,
+   `secret-access-key`, and `endpoint-url` (leave empty for AWS S3).
+3. Reference the storage from your BlueMap config and restart/reload.
 
-### Sponge, Forge, Fabric
-1. Download the latest release of BlueMapS3Storage from the [releases page](https://github.com/TheMeinerLP/BlueMapS3Storage/releases)
-2. Place the JAR file in the `./config/bluemap/packs/` directory of your server
-3. Restart your server or reload BlueMap
+See the **[Wiki](https://github.com/TheMeinerLP/BlueMapS3Storage/wiki)** for everything else:
 
-### CLI
-1. Download the latest release of BlueMapS3Storage from the [releases page](https://github.com/TheMeinerLP/BlueMapS3Storage/releases)
-2. Place the JAR file in the `./config/packs/` directory of your server
-3. Restart your server or reload BlueMap
-## Configuration
-
-To use S3 storage with BlueMap, you need to create or modify the S3 storage configuration file. Create a file named `s3.conf` in the `plugins/BlueMap/storages` directory with the following content:
-
-```hocon
-##                          ##
-##         BlueMap          ##
-##      Storage-Config      ##
-##                          ##
-
-# The storage-type of this storage.
-# Depending on this setting, different config-entries are allowed/expected in this config file.
-# Don't change this value! (If you want a different storage-type, check out the other example-configs)
-storage-type: "themeinerlp:s3"
-
-# The compression-type that bluemap will use to compress generated map-data.
-# Available compression-types are:
-#  - gzip
-#  - zstd
-#  - deflate
-#  - none
-# The default is: gzip
-compression: gzip
-
-# The S3 storage
-bucket-name: "bluemap-storage"
-
-# AWS region or "Minio" for MinIO
-region: "Minio"
-
-# S3 credentials
-access-key-id: "your-access-key"
-secret-access-key: "your-secret-key"
-
-# Optional: Custom endpoint URL for S3-compatible services
-# Leave empty for AWS S3
-endpoint-url: "http://localhost:9000"
-
-# Optional: The root path in the S3 bucket where BlueMap data will be stored
-# Default is "." (root of the bucket)
-root-path: "."
-
-# Optional: Force path style access for S3 (needed for MinIO)
-# Default is false (use virtual-hosted style)
-force-path-style: true
-```
-
-### Configuration Options
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `storage-type` | The storage type identifier (don't change this value) | `themeinerlp:s3` |
-| `compression` | The compression type to use for storing data (options: "gzip", "zstd", "deflate", "none") | `gzip` |
-| `bucket-name` | The name of the S3 bucket to use | `bluemap-storage` |
-| `region` | The AWS region where the bucket is located | `Minio` |
-| `access-key-id` | The AWS access key ID for authentication | `bluemap` |
-| `secret-access-key` | The AWS secret access key for authentication | `bluemap-secret` |
-| `endpoint-url` | Optional: The endpoint URL for S3-compatible services (leave empty for AWS S3) | `http://localhost:9000` |
-| `root-path` | Optional: The root path in the S3 bucket where BlueMap data will be stored | `.` |
-| `force-path-style` | Optional: Force path style access for S3 (needed for MinIO) | `false` |
-| `checksum-validation` | Controls when the AWS SDK attaches/validates request and response checksums (`when_required` or `when_supported`). Since SDK 2.30 the default is `when_supported`, which many S3-compatible stores (Ceph RGW included) reject with a bare 400 Bad Request. Set to `when_supported` only if you're on real AWS S3 or a provider you've confirmed handles it. | `when_required` |
-| `provider` | Optional: explicitly picks the provider profile (`r2` or `generic`) instead of auto-detecting from which fields are set. Only needed if you want to be explicit; see [docs/cloudflare-r2.md](docs/cloudflare-r2.md). | (auto-detect) |
-| `account-id` | Optional: Cloudflare account ID. If set and `endpoint-url` is left empty, the endpoint is derived automatically as `https://<account-id>.r2.cloudflarestorage.com` with path-style access enabled. See [docs/cloudflare-r2.md](docs/cloudflare-r2.md). | (empty) |
-| `list-cache-ttl-seconds` | Optional: How long to cache the list of available maps (`mapIds()`). Directory listings are a billed operation on some providers (e.g. R2); this list rarely changes at runtime. `0` disables caching. | `0` |
-
-## Usage Examples
-
-### AWS S3
-
-```hocon
-##                          ##
-##         BlueMap          ##
-##      Storage-Config      ##
-##                          ##
-
-storage-type: "themeinerlp:s3"
-compression: gzip
-bucket-name: "my-bluemap-bucket"
-region: "us-east-1"
-access-key-id: "AKIAIOSFODNN7EXAMPLE"
-secret-access-key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-endpoint-url: ""
-root-path: "."
-force-path-style: false
-```
-
-### MinIO
-
-```hocon
-##                          ##
-##         BlueMap          ##
-##      Storage-Config      ##
-##                          ##
-
-storage-type: "themeinerlp:s3"
-compression: gzip
-bucket-name: "bluemap"
-region: "us-east-1"
-access-key-id: "minioadmin"
-secret-access-key: "minioadmin"
-endpoint-url: "http://minio-server:9000"
-root-path: "."
-force-path-style: true
-```
-
-### Cloudflare R2
-
-```hocon
-##                          ##
-##         BlueMap          ##
-##      Storage-Config      ##
-##                          ##
-
-storage-type: "themeinerlp:s3"
-compression: gzip
-bucket-name: "bluemap-storage"
-account-id: "your-cloudflare-account-id"
-access-key-id: "your-r2-access-key"
-secret-access-key: "your-r2-secret-key"
-```
-
-See [docs/cloudflare-r2.md](docs/cloudflare-r2.md) for full setup steps, the listing-cache option, and troubleshooting.
-
-### DigitalOcean Spaces
-
-```hocon
-##                          ##
-##         BlueMap          ##
-##      Storage-Config      ##
-##                          ##
-
-storage-type: "themeinerlp:s3"
-compression: gzip
-bucket-name: "bluemap-maps"
-region: "nyc3"
-access-key-id: "your-spaces-key"
-secret-access-key: "your-spaces-secret"
-endpoint-url: "https://nyc3.digitaloceanspaces.com"
-root-path: "."
-force-path-style: false
-```
-
-## Building from Source
-
-1. Clone the repository:
-   ```
-   git clone https://github.com/TheMeinerLP/BlueMapS3Storage.git
-   ```
-
-2. Build the project using Gradle:
-   ```
-   ./gradlew shadowJar
-   ```
-
-3. The built JAR file will be located in the `build/libs` directory.
+- [Installation](https://github.com/TheMeinerLP/BlueMapS3Storage/wiki/Installation) — exact paths per platform
+- [Configuration](https://github.com/TheMeinerLP/BlueMapS3Storage/wiki/Configuration) — full option reference
+- [Provider Examples](https://github.com/TheMeinerLP/BlueMapS3Storage/wiki/Provider-Examples) — AWS S3, MinIO, DigitalOcean Spaces
+- [Cloudflare R2](https://github.com/TheMeinerLP/BlueMapS3Storage/wiki/Cloudflare-R2) — R2-specific setup, cost notes, troubleshooting
+- [Building From Source](https://github.com/TheMeinerLP/BlueMapS3Storage/wiki/Building-From-Source)
 
 ## License
 
-This project is licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE).
+[GNU Affero General Public License v3.0 (AGPL-3.0)](LICENSE)
 
 ## Credits
 
@@ -216,4 +42,4 @@ This project is licensed under the [GNU Affero General Public License v3.0 (AGPL
 
 ## Support
 
-If you encounter any issues or have questions, please [open an issue](https://github.com/TheMeinerLP/BlueMapS3Storage/issues) on the GitHub repository.
+[Open an issue](https://github.com/TheMeinerLP/BlueMapS3Storage/issues) on GitHub.

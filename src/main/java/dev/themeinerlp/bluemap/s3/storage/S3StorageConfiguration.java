@@ -55,7 +55,17 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
 
     @Comment("Force path style access for S3 (default: false, use virtual-hosted style)")
     private boolean forcePathStyle = false;
-    
+
+    @Comment("""
+            Controls when the AWS SDK attaches/validates request and response checksums
+            (aws.requestChecksumCalculation / aws.responseChecksumValidation). Since SDK 2.30
+            the default is "when_supported", which adds a checksum to every request - many
+            S3-compatible stores (Ceph RGW included) reject that with a bare 400 Bad Request
+            and silently fail tile saves. Use "when_required" (default here) for those; set it
+            back to "when_supported" if you're on real AWS S3 or a provider that handles it fine.
+            """)
+    private String checksumValidation = "when_required";
+
     @Override
     public Storage createStorage() throws ConfigurationException {
         // Validate required configuration
@@ -119,5 +129,10 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
     @Override
     public boolean forcePathStyle() {
         return forcePathStyle;
+    }
+
+    @Override
+    public String getChecksumValidation() {
+        return ChecksumValidationMode.parse(checksumValidation).propertyValue();
     }
 }

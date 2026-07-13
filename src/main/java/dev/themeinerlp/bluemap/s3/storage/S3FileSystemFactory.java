@@ -45,6 +45,14 @@ final class S3FileSystemFactory {
             System.setProperty(AWS_REGION_KEY, cfg.getRegion() != null ? cfg.getRegion() : DEFAULT_AWS_REGION);
             System.setProperty("aws.accessKeyId", cfg.getAccessKeyId());
             System.setProperty("aws.secretAccessKey", cfg.getSecretAccessKey());
+            // AWS SDK for Java 2.30.0+ defaults to attaching a flexible checksum (e.g. a CRC32
+            // trailer) to every PutObject and validating one on every GetObject. Many
+            // third-party S3-compatible stores (Ceph RGW included) don't handle that request
+            // shape and reject it with a bare "400 Bad Request", silently failing tile saves.
+            // Configurable per-target since real AWS S3 (and some other providers) are fine
+            // with the new default.
+            System.setProperty("aws.requestChecksumCalculation", cfg.getChecksumValidation());
+            System.setProperty("aws.responseChecksumValidation", cfg.getChecksumValidation());
             if (thirdParty) {
                 var url = URI.create(cfg.getEndpointUrl());
                 if (!url.toString().startsWith("https")) {

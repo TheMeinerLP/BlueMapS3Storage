@@ -33,4 +33,6 @@ public sealed interface S3Configuration permits S3StorageConfiguration {
 
     boolean forcePathStyle();
 
+    String getChecksumValidation();
+
 }

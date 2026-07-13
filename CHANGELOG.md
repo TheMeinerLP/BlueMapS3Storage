@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/TheMeinerLP/BlueMapS3Storage/compare/v1.4.8...v1.5.0) (2026-07-13)
+
+
+### Features
+
+* add Cloudflare R2 support via account-id and optional list caching ([#77](https://github.com/TheMeinerLP/BlueMapS3Storage/issues/77)) ([b946aeb](https://github.com/TheMeinerLP/BlueMapS3Storage/commit/b946aeb9a0ede4c0ebb634ffcb4503e8dd94d052))
+
 ## [1.4.8](https://github.com/TheMeinerLP/BlueMapS3Storage/compare/v1.4.7...v1.4.8) (2026-07-13)
 
 

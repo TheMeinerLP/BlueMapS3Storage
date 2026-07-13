@@ -67,6 +67,14 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
     private String checksumValidation = "when_required";
 
     @Comment("""
+            Optional: explicitly picks which provider profile resolves this config, one of:
+            "r2", "generic". Leave empty to auto-detect: setting account-id below picks "r2"
+            automatically, otherwise "generic" (uses endpoint-url/force-path-style as-is).
+            Only needed if you want to be explicit rather than rely on auto-detection.
+            """)
+    private String provider = "";
+
+    @Comment("""
             Optional: Cloudflare account ID. If set and endpoint-url is left empty, the
             endpoint is derived automatically as https://<account-id>.r2.cloudflarestorage.com
             and path-style access is enabled (required by R2). Leave empty for AWS S3 or any
@@ -162,5 +170,10 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
     @Override
     public int getListCacheTtlSeconds() {
         return Math.max(0, listCacheTtlSeconds);
+    }
+
+    @Override
+    public String getProvider() {
+        return provider;
     }
 }

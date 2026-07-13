@@ -7,6 +7,7 @@ A storage addon for [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap) that
 BlueMapS3Storage is an addon for BlueMap that provides the ability to store map data in S3-compatible storage services, such as:
 
 - Amazon S3
+- Cloudflare R2 (see [docs/cloudflare-r2.md](docs/cloudflare-r2.md) for R2-specific setup)
 - MinIO
 - DigitalOcean Spaces
 - Backblaze B2
@@ -107,6 +108,9 @@ force-path-style: true
 | `endpoint-url` | Optional: The endpoint URL for S3-compatible services (leave empty for AWS S3) | `http://localhost:9000` |
 | `root-path` | Optional: The root path in the S3 bucket where BlueMap data will be stored | `.` |
 | `force-path-style` | Optional: Force path style access for S3 (needed for MinIO) | `false` |
+| `checksum-validation` | Controls when the AWS SDK attaches/validates request and response checksums (`when_required` or `when_supported`). Since SDK 2.30 the default is `when_supported`, which many S3-compatible stores (Ceph RGW included) reject with a bare 400 Bad Request. Set to `when_supported` only if you're on real AWS S3 or a provider you've confirmed handles it. | `when_required` |
+| `account-id` | Optional: Cloudflare account ID. If set and `endpoint-url` is left empty, the endpoint is derived automatically as `https://<account-id>.r2.cloudflarestorage.com` with path-style access enabled. See [docs/cloudflare-r2.md](docs/cloudflare-r2.md). | (empty) |
+| `list-cache-ttl-seconds` | Optional: How long to cache the list of available maps (`mapIds()`). Directory listings are a billed operation on some providers (e.g. R2); this list rarely changes at runtime. `0` disables caching. | `0` |
 
 ## Usage Examples
 
@@ -147,6 +151,24 @@ endpoint-url: "http://minio-server:9000"
 root-path: "."
 force-path-style: true
 ```
+
+### Cloudflare R2
+
+```hocon
+##                          ##
+##         BlueMap          ##
+##      Storage-Config      ##
+##                          ##
+
+storage-type: "themeinerlp:s3"
+compression: gzip
+bucket-name: "bluemap-storage"
+account-id: "your-cloudflare-account-id"
+access-key-id: "your-r2-access-key"
+secret-access-key: "your-r2-secret-key"
+```
+
+See [docs/cloudflare-r2.md](docs/cloudflare-r2.md) for full setup steps, the listing-cache option, and troubleshooting.
 
 ### DigitalOcean Spaces
 

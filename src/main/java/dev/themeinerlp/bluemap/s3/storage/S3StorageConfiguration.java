@@ -66,6 +66,24 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
             """)
     private String checksumValidation = "when_required";
 
+    @Comment("""
+            Optional: Cloudflare account ID. If set and endpoint-url is left empty, the
+            endpoint is derived automatically as https://<account-id>.r2.cloudflarestorage.com
+            and path-style access is enabled (required by R2). Leave empty for AWS S3 or any
+            other S3-compatible provider - use endpoint-url directly for those instead.
+            """)
+    @DebugDump(exclude = true)
+    private String accountId = "";
+
+    @Comment("""
+            How long (in seconds) to cache the result of listing available maps (mapIds()).
+            0 disables caching (default). Directory listings are a billed "Class A" operation
+            on R2 and similar providers, so a short cache here cuts down on repeated listing
+            calls; this list rarely changes at runtime (only when a map is added/removed), so
+            a stale cache for a few minutes is normally harmless.
+            """)
+    private int listCacheTtlSeconds = 0;
+
     @Override
     public Storage createStorage() throws ConfigurationException {
         // Validate required configuration
@@ -134,5 +152,15 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
     @Override
     public String getChecksumValidation() {
         return ChecksumValidationMode.parse(checksumValidation).propertyValue();
+    }
+
+    @Override
+    public String getAccountId() {
+        return accountId;
+    }
+
+    @Override
+    public int getListCacheTtlSeconds() {
+        return Math.max(0, listCacheTtlSeconds);
     }
 }

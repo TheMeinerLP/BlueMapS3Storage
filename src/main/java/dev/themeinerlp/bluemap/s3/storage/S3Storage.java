@@ -17,6 +17,7 @@
  */
 package dev.themeinerlp.bluemap.s3.storage;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import de.bluecolored.bluemap.core.storage.MapStorage;
@@ -24,23 +25,37 @@ import de.bluecolored.bluemap.core.storage.Storage;
 import de.bluecolored.bluemap.core.storage.compression.Compression;
 import de.bluecolored.bluemap.core.storage.file.FileMapStorage;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.util.List;
 import java.util.stream.Stream;
 
 public final class S3Storage implements Storage {
+
+    private static final String MAP_IDS_CACHE_KEY = "mapIds";
 
     private final S3Configuration configuration;
     private final Compression compression;
     private FileSystem s3FileSystem;
     private boolean closed = false;
     private final LoadingCache<String, FileMapStorage> mapStorages;
+    // Directory listings are a billed "Class A" operation on R2 and similar providers, so
+    // mapIds() (which rarely changes at runtime) can optionally be cached for a while. Null
+    // when list-cache-ttl-seconds is 0, meaning caching stays off unless explicitly configured.
+    private final Cache<String, List<String>> mapIdsCache;
 
     public S3Storage(S3Configuration configuration, Compression compression) {
         this.configuration = configuration;
         this.compression = compression;
         mapStorages = Caffeine.newBuilder().build(this::create);
+        int listCacheTtlSeconds = configuration.getListCacheTtlSeconds();
+        mapIdsCache =
+                listCacheTtlSeconds > 0
+                        ? Caffeine.newBuilder().expireAfterWrite(Duration.ofSeconds(listCacheTtlSeconds)).build()
+                        : null;
     }
 
     @Override
@@ -83,12 +98,24 @@ public final class S3Storage implements Storage {
         if (isClosed()) {
             throw new IOException("Storage is closed");
         }
-        
-        // List all directories in the root path
-        return Files.list(getRooPath())
-                .filter(Files::isDirectory)
-                .map(Path::getFileName)
-                .map(Path::toString);
+
+        try {
+            List<String> ids =
+                    mapIdsCache != null
+                            ? mapIdsCache.get(MAP_IDS_CACHE_KEY, key -> listMapIdsUncached())
+                            : listMapIdsUncached();
+            return ids.stream();
+        } catch (UncheckedIOException e) {
+            throw e.getCause();
+        }
+    }
+
+    private List<String> listMapIdsUncached() {
+        try (Stream<Path> entries = Files.list(getRooPath())) {
+            return entries.filter(Files::isDirectory).map(Path::getFileName).map(Path::toString).toList();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override

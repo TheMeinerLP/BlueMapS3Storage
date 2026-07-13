@@ -39,7 +39,11 @@ final class S3FileSystemFactory {
             throw new IllegalArgumentException("bucketName is required");
         }
 
-        final boolean thirdParty = cfg.getEndpointUrl() != null && !cfg.getEndpointUrl().isBlank();
+        final boolean noExplicitEndpoint = cfg.getEndpointUrl() == null || cfg.getEndpointUrl().isBlank();
+        final boolean usingAccountId = noExplicitEndpoint && cfg.getAccountId() != null && !cfg.getAccountId().isBlank();
+        final String effectiveEndpoint =
+                usingAccountId ? "https://" + cfg.getAccountId() + ".r2.cloudflarestorage.com" : cfg.getEndpointUrl();
+        final boolean thirdParty = effectiveEndpoint != null && !effectiveEndpoint.isBlank();
         try {
             final URI uri;
             System.setProperty(AWS_REGION_KEY, cfg.getRegion() != null ? cfg.getRegion() : DEFAULT_AWS_REGION);
@@ -54,11 +58,13 @@ final class S3FileSystemFactory {
             System.setProperty("aws.requestChecksumCalculation", cfg.getChecksumValidation());
             System.setProperty("aws.responseChecksumValidation", cfg.getChecksumValidation());
             if (thirdParty) {
-                var url = URI.create(cfg.getEndpointUrl());
+                var url = URI.create(effectiveEndpoint);
                 if (!url.toString().startsWith("https")) {
                     System.setProperty("s3.spi.endpoint-protocol", "http");
                 }
-                if (cfg.forcePathStyle()) {
+                // R2 only supports path-style access, so force it when we derived the endpoint
+                // from account-id, regardless of what force-path-style is set to.
+                if (cfg.forcePathStyle() || usingAccountId) {
                     System.setProperty("s3.spi.force-path-style", "true");
                 }
                 PROVIDER = new S3XFileSystemProvider();

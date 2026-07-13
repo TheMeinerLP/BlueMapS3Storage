@@ -17,28 +17,27 @@
  */
 package dev.themeinerlp.bluemap.s3.storage;
 
-public sealed interface S3Configuration permits S3StorageConfiguration {
+/**
+ * Fallback profile: passes the configured endpoint-url/force-path-style/region through
+ * unchanged. Always applies, and {@link ProviderProfiles} tries it last so any provider-specific
+ * profile gets a chance to take over first.
+ */
+final class GenericS3Profile implements ProviderProfile {
 
-    String getBucketName();
+    static final String ID = "generic";
 
-    String getRegion();
+    @Override
+    public String id() {
+        return ID;
+    }
 
-    String getAccessKeyId();
+    @Override
+    public boolean appliesTo(S3Configuration cfg) {
+        return true;
+    }
 
-    String getSecretAccessKey();
-
-    String getEndpointUrl();
-
-    String getRootPath();
-
-    boolean forcePathStyle();
-
-    String getChecksumValidation();
-
-    String getAccountId();
-
-    int getListCacheTtlSeconds();
-
-    String getProvider();
-
+    @Override
+    public ResolvedEndpoint resolve(S3Configuration cfg) {
+        return new ResolvedEndpoint(cfg.getEndpointUrl(), cfg.forcePathStyle(), cfg.getRegion());
+    }
 }

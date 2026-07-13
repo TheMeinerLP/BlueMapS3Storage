@@ -1,0 +1,56 @@
+name: release-please
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@v5
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  # BlueMapS3Storage is a server plugin (dropped into plugins/BlueMap/packs), not a library
+  # other projects depend on - so unlike most of the org's Gradle repos, it doesn't publish to
+  # OneLiteFeatherRepo. It attaches the shadowJar to the GitHub Release instead, same as before
+  # under semantic-release's @semantic-release/github assets config.
+  build-and-upload:
+    name: Build & upload release jar
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v5
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 24
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+      - name: Build shadowJar
+        run: ./gradlew clean shadowJar
+      - name: Upload Release Asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
+        run: gh release upload "$TAG_NAME" build/libs/BlueMapS3Storage-*.jar --clobber

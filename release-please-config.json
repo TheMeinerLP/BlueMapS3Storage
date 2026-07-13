@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "simple",
+  "include-component-in-tag": false,
+  "include-v-in-tag": true,
+  "bootstrap-sha": "6654d4cd161df707d22fd4541d101d848e8c4811",
+  "pull-request-header": "",
+  "packages": {
+    ".": {
+      "package-name": "bluemaps3storage",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        "gradle.properties"
+      ]
+    }
+  }
+}

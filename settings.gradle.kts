@@ -7,7 +7,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            version("junit", "6.0.3")
+            version("junit", "6.1.2")
             version("spotless", "8.3.0")
             version("aws-java-nio-spi-for-s3", "2.5.0")
             version("bluemap", "5.3")

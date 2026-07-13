@@ -39,14 +39,12 @@ final class S3FileSystemFactory {
             throw new IllegalArgumentException("bucketName is required");
         }
 
-        final boolean noExplicitEndpoint = cfg.getEndpointUrl() == null || cfg.getEndpointUrl().isBlank();
-        final boolean usingAccountId = noExplicitEndpoint && cfg.getAccountId() != null && !cfg.getAccountId().isBlank();
-        final String effectiveEndpoint =
-                usingAccountId ? "https://" + cfg.getAccountId() + ".r2.cloudflarestorage.com" : cfg.getEndpointUrl();
-        final boolean thirdParty = effectiveEndpoint != null && !effectiveEndpoint.isBlank();
+        final ProviderProfile.ResolvedEndpoint resolved = ProviderProfiles.resolve(cfg);
+        final boolean thirdParty = resolved.endpointUrl() != null && !resolved.endpointUrl().isBlank();
         try {
             final URI uri;
-            System.setProperty(AWS_REGION_KEY, cfg.getRegion() != null ? cfg.getRegion() : DEFAULT_AWS_REGION);
+            String region = resolved.region() != null && !resolved.region().isBlank() ? resolved.region() : DEFAULT_AWS_REGION;
+            System.setProperty(AWS_REGION_KEY, region);
             System.setProperty("aws.accessKeyId", cfg.getAccessKeyId());
             System.setProperty("aws.secretAccessKey", cfg.getSecretAccessKey());
             // AWS SDK for Java 2.30.0+ defaults to attaching a flexible checksum (e.g. a CRC32
@@ -58,13 +56,11 @@ final class S3FileSystemFactory {
             System.setProperty("aws.requestChecksumCalculation", cfg.getChecksumValidation());
             System.setProperty("aws.responseChecksumValidation", cfg.getChecksumValidation());
             if (thirdParty) {
-                var url = URI.create(effectiveEndpoint);
+                var url = URI.create(resolved.endpointUrl());
                 if (!url.toString().startsWith("https")) {
                     System.setProperty("s3.spi.endpoint-protocol", "http");
                 }
-                // R2 only supports path-style access, so force it when we derived the endpoint
-                // from account-id, regardless of what force-path-style is set to.
-                if (cfg.forcePathStyle() || usingAccountId) {
+                if (resolved.forcePathStyle()) {
                     System.setProperty("s3.spi.force-path-style", "true");
                 }
                 PROVIDER = new S3XFileSystemProvider();

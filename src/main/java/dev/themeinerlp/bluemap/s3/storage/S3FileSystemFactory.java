@@ -45,8 +45,6 @@ final class S3FileSystemFactory {
             final URI uri;
             String region = resolved.region() != null && !resolved.region().isBlank() ? resolved.region() : DEFAULT_AWS_REGION;
             System.setProperty(AWS_REGION_KEY, region);
-            System.setProperty("aws.accessKeyId", cfg.getAccessKeyId());
-            System.setProperty("aws.secretAccessKey", cfg.getSecretAccessKey());
             // AWS SDK for Java 2.30.0+ defaults to attaching a flexible checksum (e.g. a CRC32
             // trailer) to every PutObject and validating one on every GetObject. Many
             // third-party S3-compatible stores (Ceph RGW included) don't handle that request
@@ -64,10 +62,27 @@ final class S3FileSystemFactory {
                     System.setProperty("s3.spi.force-path-style", "true");
                 }
                 PROVIDER = new S3XFileSystemProvider();
+                // Credentials travel in the URI's userInfo below, scoped to this one
+                // filesystem - deliberately NOT also written to the aws.accessKeyId/
+                // aws.secretAccessKey system properties here. Those are process-wide mutable
+                // state; any other credential resolution in this JVM that reads the default
+                // AWS credentials chain (e.g. an async/background client the nio-spi-s3
+                // library spins up internally, distinct from the client that honors the URI)
+                // would see whatever this storage's config last wrote there, independent of
+                // which storage's requests are actually in flight at that moment. Observed in
+                // production as intermittent, unpredictable 403s specifically on the async
+                // read-ahead path (S3ReadAheadByteChannel) against a third-party store (Ceph
+                // RGW), with the rejected requests showing no identifiable user at all -
+                // consistent with a credential resolution racing against a value this method
+                // (or another instance of it) had already overwritten.
                 String userInfo = buildUserInfo(cfg);
                 uri = new URI("s3x", userInfo, url.getHost(), url.getPort(), "/" + cfg.getBucketName(), null, null);
             } else {
-                // AWS S3 – the provider uses the default region/credentials chain
+                // AWS S3 – the provider uses the default region/credentials chain, which has
+                // no URI-embedded alternative for this code path, so these two properties are
+                // the only way to hand it credentials.
+                System.setProperty("aws.accessKeyId", cfg.getAccessKeyId());
+                System.setProperty("aws.secretAccessKey", cfg.getSecretAccessKey());
                 PROVIDER = new S3FileSystemProvider();
 
                 uri = new URI("s3","/" + cfg.getBucketName(), null, null);

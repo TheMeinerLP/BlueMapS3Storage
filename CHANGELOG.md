@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/TheMeinerLP/BlueMapS3Storage/compare/v1.5.0...v1.5.1) (2026-07-19)
+
+
+### Bug Fixes
+
+* don't set global credential system properties for third-party S3 targets ([#83](https://github.com/TheMeinerLP/BlueMapS3Storage/issues/83)) ([a83df04](https://github.com/TheMeinerLP/BlueMapS3Storage/commit/a83df046022eb5945d25b8f90f8f8a2f32ae2fae))
+
 ## [1.5.0](https://github.com/TheMeinerLP/BlueMapS3Storage/compare/v1.4.8...v1.5.0) (2026-07-13)
 
 

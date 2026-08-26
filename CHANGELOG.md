@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.2](https://github.com/TheMeinerLP/BlueMapS3Storage/compare/v1.5.1...v1.5.2) (2026-08-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.junit:junit-bom to v6.1.3 ([#87](https://github.com/TheMeinerLP/BlueMapS3Storage/issues/87)) ([53f7cf4](https://github.com/TheMeinerLP/BlueMapS3Storage/commit/53f7cf457508e7fa2d19b001a28af2fb82f8a298))
+
 ## [1.5.1](https://github.com/TheMeinerLP/BlueMapS3Storage/compare/v1.5.0...v1.5.1) (2026-07-19)
 
 

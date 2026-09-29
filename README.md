@@ -19,7 +19,9 @@ multi-server networks that need to share the same map data.
    and drop the jar in `./plugins/BlueMap/packs/` (Spigot/Paper), `./config/bluemap/packs/`
    (Sponge/Forge/Fabric), or `./config/packs/` (CLI).
 2. Create a storage config file with at least `storage-type`, `bucket-name`, `access-key-id`,
-   `secret-access-key`, and `endpoint-url` (leave empty for AWS S3).
+   `secret-access-key`, and `endpoint-url` (leave empty for AWS S3). On AWS, leave both
+   `access-key-id` and `secret-access-key` empty to use the default AWS credential chain
+   (environment variables, profiles, ECS task roles, EC2 instance profiles) instead of static keys.
 3. Reference the storage from your BlueMap config and restart/reload.
 
 See the **[Wiki](https://github.com/TheMeinerLP/BlueMapS3Storage/wiki)** for everything else:

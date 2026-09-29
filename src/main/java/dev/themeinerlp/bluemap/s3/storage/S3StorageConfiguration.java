@@ -36,10 +36,10 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
     @Comment("The AWS region where the bucket is located")
     private String region = "Minio";
     
-    @Comment("The AWS access key ID for authentication")
+    @Comment("The AWS access key ID for authentication. Leave empty together with secret-access-key to use the default AWS credential chain (environment, profile, ECS task role, EC2 instance profile)")
     private String accessKeyId = "bluemap";
     
-    @Comment("The AWS secret access key for authentication")
+    @Comment("The AWS secret access key for authentication. Leave empty together with access-key-id to use the default AWS credential chain")
     @DebugDump(exclude = true)
     private String secretAccessKey = "bluemap-secret";
     
@@ -103,12 +103,10 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
             throw new ConfigurationException("AWS region is required");
         }
         
-        if (accessKeyId == null || accessKeyId.isEmpty()) {
-            throw new ConfigurationException("AWS access key ID is required");
-        }
-        
-        if (secretAccessKey == null || secretAccessKey.isEmpty()) {
-            throw new ConfigurationException("AWS secret access key is required");
+        try {
+            StaticCredentials.isConfigured(accessKeyId, secretAccessKey);
+        } catch (IllegalArgumentException e) {
+            throw new ConfigurationException(e.getMessage(), e);
         }
         
         // Create and return the S3Storage instance with the configured compression

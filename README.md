@@ -15,22 +15,18 @@ multi-server networks that need to share the same map data.
 
 ## Quick start
 
-1. Download the latest release from the [releases page](https://github.com/TheMeinerLP/BlueMapS3Storage/releases)
-   and drop the jar in `./plugins/BlueMap/packs/` (Spigot/Paper), `./config/bluemap/packs/`
-   (Sponge/Forge/Fabric), or `./config/packs/` (CLI).
-2. Create a storage config file with at least `storage-type`, `bucket-name`, `access-key-id`,
-   `secret-access-key`, and `endpoint-url` (leave empty for AWS S3). On AWS, leave both
-   `access-key-id` and `secret-access-key` empty to use the default AWS credential chain
-   (environment variables, profiles, ECS task roles, EC2 instance profiles) instead of static keys.
-3. Reference the storage from your BlueMap config and restart/reload.
+1. Download the latest jar from the [releases page](https://github.com/TheMeinerLP/BlueMapS3Storage/releases) and put it into BlueMap's `packs` directory.
+2. Create a storage configuration with `storage-type: "themeinerlp:s3"`, a bucket, an account ID or endpoint, and an access key.
+3. Set `storage` in a map configuration to that storage and restart the server. The [tutorial](docs/tutorial/put-your-map-on-cloudflare-r2.md) walks through it end to end.
 
-See the **[Wiki](https://github.com/TheMeinerLP/BlueMapS3Storage/wiki)** for everything else:
+## Documentation
 
-- [Installation](https://github.com/TheMeinerLP/BlueMapS3Storage/wiki/Installation) — exact paths per platform
-- [Configuration](https://github.com/TheMeinerLP/BlueMapS3Storage/wiki/Configuration) — full option reference
-- [Provider Examples](https://github.com/TheMeinerLP/BlueMapS3Storage/wiki/Provider-Examples) — AWS S3, MinIO, DigitalOcean Spaces
-- [Cloudflare R2](https://github.com/TheMeinerLP/BlueMapS3Storage/wiki/Cloudflare-R2) — R2-specific setup, cost notes, troubleshooting
-- [Building From Source](https://github.com/TheMeinerLP/BlueMapS3Storage/wiki/Building-From-Source)
+Start at the [documentation index](docs/index.md), or jump straight in:
+
+- [Tutorial](docs/tutorial/put-your-map-on-cloudflare-r2.md): learn by putting a map on Cloudflare R2.
+- [How-to guides](docs/how-to/): solve a specific task, such as connecting to AWS S3 or MinIO.
+- [Reference](docs/reference/): look up configuration keys, file locations and error messages.
+- [Explanation](docs/explanation/): understand why the addon works the way it does.
 
 ## License
 

@@ -118,7 +118,17 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
             throw new ConfigurationException("S3 bucket name is required");
         }
         
-        if (region == null || region.isEmpty()) {
+        // Resolve the provider profile up front so R2 misconfiguration is reported as a clean
+        // ConfigurationException instead of a stack trace from S3FileSystemFactory.
+        final ProviderProfile.ResolvedEndpoint resolved;
+        try {
+            resolved = ProviderProfiles.resolve(this);
+        } catch (IllegalArgumentException e) {
+            throw new ConfigurationException(e.getMessage(), e);
+        }
+
+        // R2 maps an empty region to "auto", so only the other profiles need one.
+        if (!R2Profile.ID.equals(resolved.profileId()) && (region == null || region.isEmpty())) {
             throw new ConfigurationException("AWS region is required");
         }
         

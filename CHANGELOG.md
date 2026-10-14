@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/TheMeinerLP/BlueMapS3Storage/compare/v1.6.0...v1.6.1) (2026-10-14)
+
+
+### Bug Fixes
+
+* **storage:** use the standard s3 client for cloudflare r2 ([#96](https://github.com/TheMeinerLP/BlueMapS3Storage/issues/96)) ([1158e00](https://github.com/TheMeinerLP/BlueMapS3Storage/commit/1158e00da170d769fa33b91916c1758abfcad7a2))
+
 ## [1.6.0](https://github.com/TheMeinerLP/BlueMapS3Storage/compare/v1.5.1...v1.6.0) (2026-10-14)
 
 

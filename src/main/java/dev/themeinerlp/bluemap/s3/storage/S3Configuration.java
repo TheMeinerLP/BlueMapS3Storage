@@ -17,7 +17,7 @@
  */
 package dev.themeinerlp.bluemap.s3.storage;
 
-public sealed interface S3Configuration permits S3StorageConfiguration {
+public interface S3Configuration {
 
     String getBucketName();
 

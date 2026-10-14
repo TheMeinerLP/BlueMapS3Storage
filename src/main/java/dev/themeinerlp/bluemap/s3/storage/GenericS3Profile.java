@@ -17,6 +17,8 @@
  */
 package dev.themeinerlp.bluemap.s3.storage;
 
+import java.util.List;
+
 /**
  * Fallback profile: passes the configured endpoint-url/force-path-style/region through
  * unchanged. Always applies, and {@link ProviderProfiles} tries it last so any provider-specific
@@ -38,6 +40,6 @@ final class GenericS3Profile implements ProviderProfile {
 
     @Override
     public ResolvedEndpoint resolve(S3Configuration cfg) {
-        return new ResolvedEndpoint(cfg.getEndpointUrl(), cfg.forcePathStyle(), cfg.getRegion());
+        return new ResolvedEndpoint(ID, cfg.getEndpointUrl(), cfg.forcePathStyle(), cfg.getRegion(), List.of());
     }
 }

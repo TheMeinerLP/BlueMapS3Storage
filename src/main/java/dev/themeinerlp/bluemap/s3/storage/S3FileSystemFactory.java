@@ -17,6 +17,7 @@
  */
 package dev.themeinerlp.bluemap.s3.storage;
 
+import de.bluecolored.bluemap.core.logger.Logger;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.util.Objects;
@@ -40,6 +41,13 @@ final class S3FileSystemFactory {
         }
 
         final ProviderProfile.ResolvedEndpoint resolved = ProviderProfiles.resolve(cfg);
+        resolved.warnings().forEach(Logger.global::logWarning);
+        Logger.global.logInfo("S3 storage: profile=" + resolved.profileId()
+                + ", endpoint=" + R2Profile.maskEndpoint(resolved.endpointUrl())
+                + ", bucket=" + cfg.getBucketName()
+                + ", region=" + resolved.region()
+                + ", path-style=" + resolved.forcePathStyle()
+                + ", checksum-validation=" + cfg.getChecksumValidation());
         final boolean thirdParty = resolved.endpointUrl() != null && !resolved.endpointUrl().isBlank();
         try {
             final URI uri;

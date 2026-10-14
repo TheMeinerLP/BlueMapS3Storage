@@ -54,9 +54,13 @@ Resolve with: [Put your map on Cloudflare R2](../tutorial/put-your-map-on-cloudf
 
 The `provider` key holds a value that is not a profile id. See [Provider detection](provider-detection.md).
 
-## S3 bucket name is required / AWS region is required / AWS access key ID is required / AWS secret access key is required
+## S3 bucket name is required / AWS region is required
 
-A required key is empty. See the [Configuration reference](configuration.md).
+A required key is empty. `AWS region is required` does not apply to the `r2` profile, which maps a blank region to `auto`. See the [Configuration reference](configuration.md).
+
+## Set both access-key-id and secret-access-key, or leave both empty to use the default AWS credential chain
+
+Only one of `access-key-id` and `secret-access-key` is set. Set both, or leave both empty to use the default AWS credential chain. See the [Configuration reference](configuration.md).
 
 ## Failed to build S3 FileSystem
 

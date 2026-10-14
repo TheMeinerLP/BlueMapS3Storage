@@ -29,7 +29,8 @@ The addon resolves every storage configuration through one of two provider profi
 
 - `provider: "r2"` without `account-id` and without an R2 `endpoint-url` fails at startup with `Provider 'r2' needs either 'account-id' or an 'endpoint-url' ending in .r2.cloudflarestorage.com`.
 - The `r2` profile with a blank or placeholder `access-key-id` or `secret-access-key` fails at startup with `Cloudflare R2 needs a real '<key>' (create an R2 API token); it is missing or still the built-in placeholder`, where `<key>` is the offending key.
-- `bucket-name`, `region`, `access-key-id` and `secret-access-key` must be non-empty for every profile.
+- `bucket-name` must be non-empty for every profile. `region` must be non-empty for every profile except `r2`, which maps a blank region to `auto`.
+- `access-key-id` and `secret-access-key` must be both set or both empty; the message is `Set both access-key-id and secret-access-key, or leave both empty to use the default AWS credential chain`. Both empty is valid for the `generic` profile, where the AWS default credential chain applies, but not for `r2`, which has no default credential chain.
 
 ## Startup log line
 

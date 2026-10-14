@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.6.0](https://github.com/TheMeinerLP/BlueMapS3Storage/compare/v1.5.1...v1.6.0) (2026-10-14)
+
+
+### Features
+
+* **aws:** support the default AWS credential chain ([#93](https://github.com/TheMeinerLP/BlueMapS3Storage/issues/93)) ([c04bbc7](https://github.com/TheMeinerLP/BlueMapS3Storage/commit/c04bbc7161d56e4546ea35add1776a8ee1ba05bd))
+
+
+### Bug Fixes
+
+* **deps:** update dependency org.junit:junit-bom to v6.1.3 ([#87](https://github.com/TheMeinerLP/BlueMapS3Storage/issues/87)) ([53f7cf4](https://github.com/TheMeinerLP/BlueMapS3Storage/commit/53f7cf457508e7fa2d19b001a28af2fb82f8a298))
+* **storage:** make cloudflare r2 work with account-id only ([#94](https://github.com/TheMeinerLP/BlueMapS3Storage/issues/94)) ([a967f1e](https://github.com/TheMeinerLP/BlueMapS3Storage/commit/a967f1e4ee4e8528c6f2026daf7db6097162d68b))
+
 ## [1.5.1](https://github.com/TheMeinerLP/BlueMapS3Storage/compare/v1.5.0...v1.5.1) (2026-07-19)
 
 

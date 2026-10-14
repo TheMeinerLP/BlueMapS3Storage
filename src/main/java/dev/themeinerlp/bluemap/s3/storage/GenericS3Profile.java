@@ -40,6 +40,6 @@ final class GenericS3Profile implements ProviderProfile {
 
     @Override
     public ResolvedEndpoint resolve(S3Configuration cfg) {
-        return new ResolvedEndpoint(ID, cfg.getEndpointUrl(), cfg.forcePathStyle(), cfg.getRegion(), List.of());
+        return new ResolvedEndpoint(ID, cfg.getEndpointUrl(), cfg.forcePathStyle(), cfg.getRegion(), List.of(), false);
     }
 }

@@ -33,6 +33,25 @@ class ProviderProfilesTest {
     }
 
     @Test
+    void r2ProfileWantsTheStandardClient() {
+        var r = resolve(new TestConfig().accountId("acc123"));
+        assertTrue(r.useStandardClient(), "the CRT client signs Content-Length: 0, which R2 rejects");
+    }
+
+    @Test
+    void explicitR2EndpointWantsTheStandardClient() {
+        var r = resolve(new TestConfig().endpointUrl(EU_ENDPOINT));
+        assertTrue(r.useStandardClient());
+    }
+
+    @Test
+    void genericProfileKeepsTheCrtClient() {
+        var r = resolve(new TestConfig().endpointUrl("https://s3.example.com"));
+        assertEquals("generic", r.profileId());
+        assertFalse(r.useStandardClient(), "generic must keep the CRT client");
+    }
+
+    @Test
     void accountIdOnlySelectsR2WithDerivedEndpointAndAutoRegion() {
         var r = resolve(new TestConfig().accountId("acc123"));
         assertEquals("r2", r.profileId());

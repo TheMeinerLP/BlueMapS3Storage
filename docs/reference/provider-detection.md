@@ -22,17 +22,23 @@ The addon resolves every storage configuration through one of two provider profi
 | Path-style access | Always on | `force-path-style` as configured |
 | Region | Always `auto` | `region` as configured; `us-east-1` when blank |
 
-- With the `r2` profile, a warning is logged when `region` is set to anything other than blank, `Minio`, `auto` or `us-east-1`.
+- With the `r2` profile, a blank `region`, `Minio`, `auto` and `us-east-1` are accepted. Any other value is ignored with a logged warning, and `auto` is used.
 - With the `generic` profile, a blank endpoint selects AWS S3. A non-blank endpoint selects the S3-compatible client; an endpoint that does not start with `https` uses plain HTTP.
 
 ## Validation
 
-- `provider: "r2"` without `account-id` and without an R2 `endpoint-url` fails at startup.
-- The `r2` profile with a blank or placeholder `access-key-id` or `secret-access-key` fails at startup and names the key.
+- `provider: "r2"` without `account-id` and without an R2 `endpoint-url` fails at startup with `Provider 'r2' needs either 'account-id' or an 'endpoint-url' ending in .r2.cloudflarestorage.com`.
+- The `r2` profile with a blank or placeholder `access-key-id` or `secret-access-key` fails at startup with `Cloudflare R2 needs a real '<key>' (create an R2 API token); it is missing or still the built-in placeholder`, where `<key>` is the offending key.
 - `bucket-name`, `region`, `access-key-id` and `secret-access-key` must be non-empty for every profile.
 
 ## Startup log line
 
-One INFO line is logged at startup. It contains the profile, the endpoint (the account ID masked as `***`), the bucket, the region, the path-style flag and the checksum validation mode.
+One INFO line is logged at startup:
+
+```
+S3 storage: profile=<id>, endpoint=<masked endpoint>, bucket=<bucket>, region=<region>, path-style=<true|false>, checksum-validation=<mode>
+```
+
+Example: `S3 storage: profile=r2, endpoint=https://***.r2.cloudflarestorage.com, bucket=bluemap-maps, region=auto, path-style=true, checksum-validation=when_required`. On an R2 endpoint the account ID is masked as `***`.
 
 For the reasoning behind these rules see [How provider profiles work](../explanation/how-provider-profiles-work.md).

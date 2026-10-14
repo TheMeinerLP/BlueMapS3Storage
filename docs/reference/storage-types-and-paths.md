@@ -24,7 +24,7 @@ The file name of a storage configuration without `.conf` is the storage id. A ma
 
 ## Applying changes
 
-A storage configuration is read when BlueMap starts. A change takes effect after a full server restart; `/bluemap reload` does not apply it.
+A storage configuration is read when BlueMap starts. Applying a change by a full server restart is the supported way; this addon does not test `/bluemap reload` for storage changes.
 
 ## Keys
 

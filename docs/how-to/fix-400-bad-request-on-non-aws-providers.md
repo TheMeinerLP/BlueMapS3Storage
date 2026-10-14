@@ -4,9 +4,9 @@ Use this when tile saves fail with `400 Bad Request` (often logged as `PutObject
 
 1. Open your storage configuration.
 2. Look for `checksum-validation`. If it is set to `when_supported`, remove the line or set it to `when_required`. Any value the addon does not recognise also falls back to `when_required`.
-3. Restart the server completely. `/bluemap reload` does not apply storage changes.
+3. Stop the server completely and start it again.
 4. Check the startup log line: it prints the active `checksum-validation` value.
-5. Trigger a save, for example with `/bluemap render`, and confirm that the error is gone.
+5. Trigger a save, for example with `/bluemap update <map-id>`, and confirm that the error is gone.
 
 If the error remains with `when_required`, find out whether the credentials may write: [Verify credentials with the AWS CLI](verify-credentials-with-the-aws-cli.md). If they can, [collect logs](collect-logs-for-a-support-request.md) and open an issue.
 

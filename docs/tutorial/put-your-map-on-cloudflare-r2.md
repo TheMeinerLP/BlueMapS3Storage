@@ -46,7 +46,7 @@ Because you set `account-id` and left `endpoint-url` alone, the addon recognises
 
 ## 5. Point a map at the storage
 
-1. Open a map configuration in `plugins/BlueMap/maps/`. We use `overworld.conf`.
+1. Open the configuration file of your overworld map in `plugins/BlueMap/maps/`.
 2. Set its storage to the file name of the storage configuration, without `.conf`:
 
    ```hocon
@@ -57,12 +57,18 @@ Because you set `account-id` and left `endpoint-url` alone, the addon recognises
 
 ## 6. Restart the server
 
-Stop the server completely and start it again. A `/bluemap reload` does not apply a new storage, so a full restart is required.
+Stop the server completely and start it again.
 
 ## 7. Check that it works
 
-1. Read the server log during startup. You will see one line from the addon that names the provider profile `r2`, your endpoint with the account ID masked as `***`, the bucket `bluemap-maps`, the region `auto`, path-style access and the checksum setting.
-2. Run `/bluemap render` in the server console and wait a minute.
+1. Read the server log during startup. You will see one line from the addon, like this:
+
+   ```
+   S3 storage: profile=r2, endpoint=https://***.r2.cloudflarestorage.com, bucket=bluemap-maps, region=auto, path-style=true, checksum-validation=when_required
+   ```
+
+   Your account ID is masked as `***`.
+2. Run `/bluemap update <map-id>` in the server console, replacing `<map-id>` with the file name of the map configuration you edited, without `.conf`. Wait a minute.
 3. Open the `bluemap-maps` bucket in the Cloudflare dashboard and refresh. You will see objects for your map.
 
 If you see the log line and the objects, your map is stored on R2.

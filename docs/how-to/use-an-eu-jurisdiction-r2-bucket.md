@@ -7,7 +7,7 @@ Prerequisites: a working R2 setup as in [Put your map on Cloudflare R2](../tutor
 1. In your storage configuration, set `endpoint-url` to `https://<account-id>.eu.r2.cloudflarestorage.com`, using your own account ID.
 2. Keep `account-id` set or remove it. The host ends in `.r2.cloudflarestorage.com`, so the R2 profile is selected either way. See [Provider detection](../reference/provider-detection.md).
 3. Leave `region` and `force-path-style` alone. The R2 profile sets both itself.
-4. Restart the server completely. `/bluemap reload` does not apply storage changes.
+4. Stop the server completely and start it again.
 5. Check the startup log line: it shows the endpoint with the account ID masked, and the profile `r2`.
 
 ```hocon

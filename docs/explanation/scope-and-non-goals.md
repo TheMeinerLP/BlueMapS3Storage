@@ -9,7 +9,7 @@ BlueMapS3Storage is a BlueMap storage type. It stores and loads the data BlueMap
 - It does not host the BlueMap web app. The web app is the HTML and JavaScript that shows the map in a browser. A running BlueMap integration serves it while the Minecraft server is up. If the server is offline, nobody serves the app, so viewing a map then requires hosting the web app separately and pointing it at the data. Storing tiles in S3 alone does not make a map viewable without a server.
 - It does not render maps. Rendering is BlueMap's job and still happens on the machine that runs BlueMap.
 - It does not manage buckets, users, lifecycle rules or permissions. Create and secure them with your provider's tools.
-- It does not apply storage changes at runtime. A storage configuration is read at startup, so changing it needs a full server restart. `/bluemap reload` is not supported for this.
+- It does not support applying storage changes at runtime. A storage configuration is read at startup. Reloading is not tested or supported by this addon for storage changes; use a full server restart.
 - It does not add a separate storage type per provider. All providers use `themeinerlp:s3`; provider differences are handled by [profiles](how-provider-profiles-work.md).
 
 ## Why these limits

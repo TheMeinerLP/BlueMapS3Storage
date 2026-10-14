@@ -2,8 +2,8 @@
 
 Prepare a log that lets a maintainer reproduce your problem, without leaking secrets.
 
-1. Stop the server and start it again completely, so that the log contains the whole startup of the addon. A reload does not log it.
-2. Reproduce the problem, for example by running `/bluemap render`.
+1. Stop the server and start it again completely, so that the log contains the whole startup of the addon.
+2. Reproduce the problem, for example by running `/bluemap update <map-id>`.
 3. Open `logs/latest.log` in the server directory.
 4. Find the first error. Later errors are usually consequences of it.
 5. Copy the first error with its whole stack trace, including every `Caused by:` line down to the last one. The last `Caused by:` is usually the real reason.

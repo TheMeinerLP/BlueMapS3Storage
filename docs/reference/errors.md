@@ -38,6 +38,18 @@ The addon connected to `http://localhost:9000`, which is the built-in default of
 
 Resolve with: set `endpoint-url` (or `account-id` for R2) as in [Connect to MinIO](../how-to/connect-to-minio.md), [Connect to AWS S3](../how-to/connect-to-aws-s3.md) or [Put your map on Cloudflare R2](../tutorial/put-your-map-on-cloudflare-r2.md).
 
+## Provider 'r2' needs either 'account-id' or an 'endpoint-url' ending in .r2.cloudflarestorage.com
+
+`provider: "r2"` is set, but neither `account-id` nor an R2 `endpoint-url` is. BlueMap reports it as a configuration error.
+
+Resolve with: [Put your map on Cloudflare R2](../tutorial/put-your-map-on-cloudflare-r2.md) or [Use an EU-jurisdiction R2 bucket](../how-to/use-an-eu-jurisdiction-r2-bucket.md). See [Provider detection](provider-detection.md).
+
+## Cloudflare R2 needs a real '<key>' (create an R2 API token); it is missing or still the built-in placeholder
+
+`<key>` is `access-key-id` or `secret-access-key`. The value is blank or still the built-in default.
+
+Resolve with: [Put your map on Cloudflare R2](../tutorial/put-your-map-on-cloudflare-r2.md) (step 2 creates the token).
+
 ## Unknown provider '...', expected one of: r2, generic
 
 The `provider` key holds a value that is not a profile id. See [Provider detection](provider-detection.md).

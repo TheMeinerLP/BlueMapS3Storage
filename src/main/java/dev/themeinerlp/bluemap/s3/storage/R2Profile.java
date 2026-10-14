@@ -70,7 +70,7 @@ final class R2Profile implements ProviderProfile {
             warnings = List.of("Cloudflare R2 only accepts region 'auto' (or the aliases 'us-east-1'/empty); "
                     + "ignoring configured region '" + region + "' and using 'auto'");
         }
-        return new ResolvedEndpoint(ID, endpoint, true, REGION, warnings);
+        return new ResolvedEndpoint(ID, endpoint, true, REGION, warnings, true);
     }
 
     /** Replaces the account-id label of an R2 host with {@code ***} so logs don't leak it. */

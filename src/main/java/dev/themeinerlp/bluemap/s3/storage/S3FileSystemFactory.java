@@ -26,6 +26,7 @@ import software.amazon.nio.spi.s3.S3XFileSystemProvider;
 
 final class S3FileSystemFactory {
     private static final String AWS_REGION_KEY = "aws.region";
+    private static final String STANDARD_CLIENT_KEY = "s3.spi.client.custom-headers.enabled";
     public static final String DEFAULT_AWS_REGION = "us-east-1";
 
     public record S3Fs(FileSystem fileSystem, URI uri) {}
@@ -61,6 +62,19 @@ final class S3FileSystemFactory {
             // with the new default.
             System.setProperty("aws.requestChecksumCalculation", cfg.getChecksumValidation());
             System.setProperty("aws.responseChecksumValidation", cfg.getChecksumValidation());
+            // nio-spi-s3 builds the CRT-based S3AsyncClient by default. For every body-less GET,
+            // LIST and DELETE that client sends and signs "Content-Length: 0", so content-length
+            // ends up in SignedHeaders. Cloudflare R2 computes its canonical request with an empty
+            // content-length value and answers 403 SignatureDoesNotMatch; only PUT works, which
+            // breaks every write because nio-spi GETs the existing object first. This property
+            // makes S3ClientProvider build the standard (Netty) client instead. It is read in the
+            // S3ClientProvider constructor, which runs inside getFileSystem, so it must be set
+            // before that call. System properties are global, so non-R2 targets clear it again.
+            if (resolved.useStandardClient()) {
+                System.setProperty(STANDARD_CLIENT_KEY, "true");
+            } else {
+                System.clearProperty(STANDARD_CLIENT_KEY);
+            }
             if (thirdParty) {
                 var url = URI.create(resolved.endpointUrl());
                 if (!url.toString().startsWith("https")) {

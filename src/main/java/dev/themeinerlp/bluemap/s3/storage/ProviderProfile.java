@@ -44,7 +44,14 @@ interface ProviderProfile {
     /**
      * @param profileId id of the profile that produced this result
      * @param warnings non-fatal notes the caller should log (never contains secrets)
+     * @param useStandardClient whether the standard (Netty) S3 client must be used instead of the
+     *     CRT client, because the CRT client's requests are rejected by this provider
      */
     record ResolvedEndpoint(
-            String profileId, String endpointUrl, boolean forcePathStyle, String region, List<String> warnings) {}
+            String profileId,
+            String endpointUrl,
+            boolean forcePathStyle,
+            String region,
+            List<String> warnings,
+            boolean useStandardClient) {}
 }

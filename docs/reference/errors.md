@@ -8,6 +8,10 @@ The provider could not verify the request signature, or answered 403. Usual caus
 
 Resolve with: [Verify credentials with the AWS CLI](../how-to/verify-credentials-with-the-aws-cli.md).
 
+### SignatureDoesNotMatch on GetObject with Cloudflare R2
+
+Seen on versions up to 1.6.0 with the `r2` profile, even with correct credentials: every read, list and delete fails with 403 while uploads work. The cause is the CRT S3 client, which signs `Content-Length: 0` on body-less requests; R2 does not accept that signature. Fixed in the next release, which uses the standard client for R2. See [How provider profiles work](../explanation/how-provider-profiles-work.md).
+
 ## AccessDenied
 
 The credentials were accepted, but are not allowed to perform the operation. Usual causes: a read-only token, or a token scoped to a different bucket.

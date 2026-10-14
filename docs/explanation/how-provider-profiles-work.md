@@ -18,6 +18,8 @@ R2 is the provider where the correct values are fully determined by one piece of
 
 The profile is also picked when the endpoint is an R2 hostname, so that jurisdiction-specific endpoints such as `<account-id>.eu.r2.cloudflarestorage.com` get the same treatment without extra keys.
 
+The `r2` profile also switches the S3 client. By default `aws-java-nio-spi-for-s3` builds the CRT-based client, which sends and signs `Content-Length: 0` on every body-less GET, LIST and DELETE. R2 computes its signature with an empty `content-length` and rejects those requests with `403 SignatureDoesNotMatch`; only uploads would work. The profile therefore makes the addon use the standard (Netty) client, by setting `s3.spi.client.custom-headers.enabled` before the file system is created. Other profiles keep the CRT client. Side effects for R2: no CRT automatic multipart transfers and slightly different user-agent headers.
+
 ## Why the built-in endpoint default is treated as "not set"
 
 A storage configuration written by BlueMap's defaults carries `endpoint-url: "http://localhost:9000"`, which is the address of a local MinIO. A user who adds only an `account-id` has not chosen that endpoint. Treating the untouched default like a blank value lets `account-id` alone be enough.

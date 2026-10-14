@@ -14,7 +14,7 @@ BlueMap saves tiles in the background. A rejected upload shows up as a failed sa
 
 ## What the addon does
 
-The addon uses `aws-java-nio-spi-for-s3` 2.5.0, which runs the CRT-based S3 client and its transfer manager under the hood. The addon passes `checksum-validation` to the SDK as both system properties before it builds the file system.
+The addon uses `aws-java-nio-spi-for-s3` 2.5.0, which runs the CRT-based S3 client by default (the `r2` profile switches to the standard client, see [How provider profiles work](how-provider-profiles-work.md)). The addon passes `checksum-validation` to the SDK as both system properties before it builds the file system.
 
 - With `when_required` (the addon's default), the SDK sends a checksum only when an operation demands one. Uploads then go out with `x-amz-content-sha256: UNSIGNED-PAYLOAD` and without `aws-chunked` encoding.
 - With `when_supported`, the SDK's own default applies. Use it where you know the provider handles it, such as AWS S3.

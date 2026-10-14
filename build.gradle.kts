@@ -19,7 +19,39 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 
+// Documentation generator: reads S3StorageConfiguration by reflection and renders
+// docs/reference/configuration.md. Not part of the shipped jar.
+val docgen: SourceSet by sourceSets.creating {
+    val main = sourceSets.main.get()
+    compileClasspath += main.output + main.compileClasspath
+    runtimeClasspath += output + compileClasspath + main.runtimeClasspath
+}
+
+sourceSets.test {
+    compileClasspath += docgen.output + docgen.compileClasspath
+    runtimeClasspath += docgen.output + docgen.compileClasspath
+}
+
+val configReferenceFile = layout.projectDirectory.file("docs/reference/configuration.md")
+
 tasks {
+    register<JavaExec>("generateConfigReference") {
+        group = "documentation"
+        description = "Regenerates docs/reference/configuration.md from S3StorageConfiguration."
+        classpath = docgen.runtimeClasspath
+        mainClass.set("dev.themeinerlp.bluemap.s3.docgen.ConfigReferenceGenerator")
+        args(configReferenceFile.asFile.path)
+    }
+    val checkConfigReference = register<JavaExec>("checkConfigReference") {
+        group = "verification"
+        description = "Fails if docs/reference/configuration.md differs from S3StorageConfiguration."
+        classpath = docgen.runtimeClasspath
+        mainClass.set("dev.themeinerlp.bluemap.s3.docgen.ConfigReferenceGenerator")
+        args(configReferenceFile.asFile.path, "--check")
+    }
+    check {
+        dependsOn(checkConfigReference)
+    }
     test {
         useJUnitPlatform()
     }

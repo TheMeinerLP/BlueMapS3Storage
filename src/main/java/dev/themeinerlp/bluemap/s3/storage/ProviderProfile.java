@@ -17,6 +17,8 @@
  */
 package dev.themeinerlp.bluemap.s3.storage;
 
+import java.util.List;
+
 /**
  * Resolves a provider's own shorthand config (e.g. Cloudflare R2's account-id) into the plain
  * connection settings {@link S3FileSystemFactory} actually needs. Keeps provider-specific
@@ -39,5 +41,10 @@ interface ProviderProfile {
     /** Only called once this profile has been selected, either explicitly or via {@link #appliesTo}. */
     ResolvedEndpoint resolve(S3Configuration cfg);
 
-    record ResolvedEndpoint(String endpointUrl, boolean forcePathStyle, String region) {}
+    /**
+     * @param profileId id of the profile that produced this result
+     * @param warnings non-fatal notes the caller should log (never contains secrets)
+     */
+    record ResolvedEndpoint(
+            String profileId, String endpointUrl, boolean forcePathStyle, String region, List<String> warnings) {}
 }

@@ -29,23 +29,41 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 @ConfigSerializable
 public final class S3StorageConfiguration extends StorageConfig implements S3Configuration {
+
+    /** Built-in endpoint-url default (a local MinIO); R2 detection treats it as "not set". */
+    static final String DEFAULT_ENDPOINT_URL = "http://localhost:9000";
+    /** Built-in region default; R2 detection treats it as "not set". */
+    static final String DEFAULT_REGION = "Minio";
+    /** Built-in access-key-id placeholder; R2 refuses to start with it. */
+    static final String DEFAULT_ACCESS_KEY_ID = "bluemap";
+    /** Built-in secret-access-key placeholder; R2 refuses to start with it. */
+    static final String DEFAULT_SECRET_ACCESS_KEY = "bluemap-secret";
     
     @Comment("The name of the S3 bucket to use")
     private String bucketName = "bluemap-storage";
     
-    @Comment("The AWS region where the bucket is located")
-    private String region = "Minio";
+    @Comment("""
+            The region used to sign requests. Generic S3: set the region of your bucket.
+            Cloudflare R2: leave unset - R2 always uses "auto" (the defaults "Minio",
+            "us-east-1" and an empty value are mapped to it, any other value is ignored with a warning).
+            """)
+    private String region = DEFAULT_REGION;
     
     @Comment("The AWS access key ID for authentication. Leave empty together with secret-access-key to use the default AWS credential chain (environment, profile, ECS task role, EC2 instance profile)")
-    private String accessKeyId = "bluemap";
+    private String accessKeyId = DEFAULT_ACCESS_KEY_ID;
     
     @Comment("The AWS secret access key for authentication. Leave empty together with access-key-id to use the default AWS credential chain")
     @DebugDump(exclude = true)
-    private String secretAccessKey = "bluemap-secret";
+    private String secretAccessKey = DEFAULT_SECRET_ACCESS_KEY;
     
-    @Comment("Optional: The endpoint URL for S3-compatible services (leave empty for AWS S3)")
+    @Comment("""
+            The endpoint URL for S3-compatible services (leave empty for AWS S3).
+            Cloudflare R2: leave unset and set account-id instead, or set the full R2 endpoint
+            (e.g. https://<account-id>.eu.r2.cloudflarestorage.com for the EU jurisdiction);
+            an endpoint ending in .r2.cloudflarestorage.com selects the R2 profile automatically.
+            """)
     @DebugDump(exclude = true)
-    private String endpointUrl = "http://localhost:9000";
+    private String endpointUrl = DEFAULT_ENDPOINT_URL;
 
     @Comment("The compression type to use for storing data (default: gzip)")
     private String compression = "gzip"; // Default compression type
@@ -68,17 +86,18 @@ public final class S3StorageConfiguration extends StorageConfig implements S3Con
 
     @Comment("""
             Optional: explicitly picks which provider profile resolves this config, one of:
-            "r2", "generic". Leave empty to auto-detect: setting account-id below picks "r2"
-            automatically, otherwise "generic" (uses endpoint-url/force-path-style as-is).
+            "r2", "generic". Leave empty to auto-detect: setting account-id below, or an endpoint-url
+            ending in .r2.cloudflarestorage.com, picks "r2"; otherwise "generic"
+            (uses endpoint-url/region/force-path-style as-is).
             Only needed if you want to be explicit rather than rely on auto-detection.
             """)
     private String provider = "";
 
     @Comment("""
-            Optional: Cloudflare account ID. If set and endpoint-url is left empty, the
-            endpoint is derived automatically as https://<account-id>.r2.cloudflarestorage.com
-            and path-style access is enabled (required by R2). Leave empty for AWS S3 or any
-            other S3-compatible provider - use endpoint-url directly for those instead.
+            Optional: Cloudflare account ID. If set and endpoint-url is empty or left at its
+            default, the R2 profile is used: the endpoint becomes
+            https://<account-id>.r2.cloudflarestorage.com, path-style access is enabled and the
+            region is "auto". Leave empty for AWS S3 or any other S3-compatible provider.
             """)
     @DebugDump(exclude = true)
     private String accountId = "";

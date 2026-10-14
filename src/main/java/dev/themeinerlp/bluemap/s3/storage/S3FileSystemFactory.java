@@ -63,25 +63,25 @@ final class S3FileSystemFactory {
                 }
                 PROVIDER = new S3XFileSystemProvider();
                 // Credentials go through the URI userInfo instead of the global
-                // aws.accessKeyId/aws.secretAccessKey properties - see PR #83.
-                String userInfo = buildUserInfo(cfg);
+                // aws.accessKeyId/aws.secretAccessKey properties - see PR #83. No userInfo
+                // when the keys are empty, so the SDK's default credential chain applies.
+                String userInfo = StaticCredentials.userInfo(cfg.getAccessKeyId(), cfg.getSecretAccessKey());
                 uri = new URI("s3x", userInfo, url.getHost(), url.getPort(), "/" + cfg.getBucketName(), null, null);
             } else {
                 // AWS S3: no URI-embedded credentials, so these are the only way to set them.
-                System.setProperty("aws.accessKeyId", cfg.getAccessKeyId());
-                System.setProperty("aws.secretAccessKey", cfg.getSecretAccessKey());
+                // With empty keys the properties are cleared and the SDK's default credential
+                // chain (environment, profile, ECS task role, instance profile) applies.
+                StaticCredentials.applyAwsSystemProperties(cfg.getAccessKeyId(), cfg.getSecretAccessKey());
                 PROVIDER = new S3FileSystemProvider();
 
-                uri = new URI("s3","/" + cfg.getBucketName(), null, null);
+                // The bucket must be the URI host (s3://bucket); the provider rejects
+                // s3:///bucket with "Bucket name cannot be null".
+                uri = new URI("s3", cfg.getBucketName(), null, null);
             }
             FileSystem fs =  PROVIDER.getFileSystem(uri);
             return new S3Fs(fs, uri);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to build S3 FileSystem", e);
         }
-    }
-    private static String buildUserInfo(S3Configuration cfg) {
-        if (cfg.getAccessKeyId() == null || cfg.getSecretAccessKey() == null) return null;
-        return cfg.getAccessKeyId() + ":" + cfg.getSecretAccessKey();
     }
 }

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2](https://github.com/TheMeinerLP/BlueMapS3Storage/compare/v1.6.1...v1.6.2) (2026-11-23)
+
+
+### Bug Fixes
+
+* **storage:** close the s3 client instead of leaking one per hour ([#101](https://github.com/TheMeinerLP/BlueMapS3Storage/issues/101)) ([43aba11](https://github.com/TheMeinerLP/BlueMapS3Storage/commit/43aba11638eae6221311b08657a710cc10bae158))
+
 ## [1.6.1](https://github.com/TheMeinerLP/BlueMapS3Storage/compare/v1.6.0...v1.6.1) (2026-10-14)
 
 

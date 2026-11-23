@@ -12,6 +12,9 @@ version = (version as String).substringBefore('#').trim()
 
 dependencies {
     implementation(libs.nio.spi.s3)
+    // S3AsyncClient is the return type of the library's client provider; the library only pulls
+    // this in at runtime. Same version as the resolved transitive dependency.
+    implementation(libs.awssdk.s3)
     compileOnly(libs.bluemap.core)
     compileOnly(libs.bluemap.common)
     testImplementation(platform(libs.junit.bom))

@@ -10,10 +10,12 @@ dependencyResolutionManagement {
             version("junit", "6.1.3")
             version("spotless", "8.10.4")
             version("aws-java-nio-spi-for-s3", "2.5.0")
+            version("awssdk", "2.45.1")
             version("bluemap", "5.3")
             version("shadow", "9.6.1")
 
             library("nio-spi-s3", "software.amazon.nio.s3", "aws-java-nio-spi-for-s3").versionRef("aws-java-nio-spi-for-s3")
+            library("awssdk-s3", "software.amazon.awssdk", "s3").versionRef("awssdk")
             library("bluemap.core", "de.bluecolored.bluemap", "BlueMapCore").versionRef("bluemap")
             library("bluemap.common", "de.bluecolored.bluemap", "BlueMapCommon").versionRef("bluemap")
 

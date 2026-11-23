@@ -21,6 +21,7 @@ import de.bluecolored.bluemap.core.logger.Logger;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.util.Objects;
+import software.amazon.nio.spi.s3.S3FileSystem;
 import software.amazon.nio.spi.s3.S3FileSystemProvider;
 import software.amazon.nio.spi.s3.S3XFileSystemProvider;
 
@@ -29,7 +30,7 @@ final class S3FileSystemFactory {
     private static final String STANDARD_CLIENT_KEY = "s3.spi.client.custom-headers.enabled";
     public static final String DEFAULT_AWS_REGION = "us-east-1";
 
-    public record S3Fs(FileSystem fileSystem, URI uri) {}
+    public record S3Fs(FileSystem fileSystem, URI uri, PinnedS3ClientProvider clientProvider) {}
 
     private static S3FileSystemProvider PROVIDER;
 
@@ -101,7 +102,16 @@ final class S3FileSystemFactory {
                 uri = new URI("s3", cfg.getBucketName(), null, null);
             }
             FileSystem fs =  PROVIDER.getFileSystem(uri);
-            return new S3Fs(fs, uri);
+            PinnedS3ClientProvider pinned = null;
+            if (fs instanceof S3FileSystem s3fs) {
+                if (s3fs.clientProvider() instanceof PinnedS3ClientProvider existing) {
+                    pinned = existing;
+                } else {
+                    pinned = new PinnedS3ClientProvider(s3fs.configuration());
+                    s3fs.clientProvider(pinned);
+                }
+            }
+            return new S3Fs(fs, uri, pinned);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to build S3 FileSystem", e);
         }

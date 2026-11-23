@@ -40,6 +40,7 @@ public final class S3Storage implements Storage {
     private final S3Configuration configuration;
     private final Compression compression;
     private FileSystem s3FileSystem;
+    private PinnedS3ClientProvider clientProvider;
     private boolean closed = false;
     private final LoadingCache<String, FileMapStorage> mapStorages;
     // Directory listings are a billed "Class A" operation on R2 and similar providers, so
@@ -67,6 +68,7 @@ public final class S3Storage implements Storage {
         try {
             S3FileSystemFactory.S3Fs handle = S3FileSystemFactory.build(configuration);
             this.s3FileSystem = handle.fileSystem();
+            this.clientProvider = handle.clientProvider();
         } catch (Exception e) {
             throw new IOException("Failed to initialize S3 storage", e);
         }
@@ -126,8 +128,14 @@ public final class S3Storage implements Storage {
     @Override
     public void close() throws IOException {
         if (!isClosed() && s3FileSystem != null) {
-            s3FileSystem.close();
-            closed = true;
+            try {
+                s3FileSystem.close();
+            } finally {
+                if (clientProvider != null) {
+                    clientProvider.close();
+                }
+                closed = true;
+            }
         }
     }
 }

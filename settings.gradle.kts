@@ -10,7 +10,7 @@ dependencyResolutionManagement {
             version("junit", "6.1.3")
             version("spotless", "8.10.4")
             version("aws-java-nio-spi-for-s3", "2.5.0")
-            version("awssdk", "2.45.1")
+            version("awssdk", "2.59.10")
             version("bluemap", "5.3")
             version("shadow", "9.6.1")
 

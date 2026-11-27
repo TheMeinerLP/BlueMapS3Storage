@@ -18,7 +18,7 @@ R2 is the provider where the correct values are fully determined by one piece of
 
 The profile is also picked when the endpoint is an R2 hostname, so that jurisdiction-specific endpoints such as `<account-id>.eu.r2.cloudflarestorage.com` get the same treatment without extra keys.
 
-The `r2` profile also switches the S3 client. By default `aws-java-nio-spi-for-s3` builds the CRT-based client, which sends and signs `Content-Length: 0` on every body-less GET, LIST and DELETE. R2 computes its signature with an empty `content-length` and rejects those requests with `403 SignatureDoesNotMatch`; only uploads would work. The profile therefore makes the addon use the standard (Netty) client, by setting `s3.spi.client.custom-headers.enabled` before the file system is created. Other profiles keep the CRT client. Side effects for R2: no CRT automatic multipart transfers and slightly different user-agent headers.
+The addon builds the standard (Netty) S3 client for every profile, never the CRT-based client that `aws-java-nio-spi-for-s3` uses by default. The CRT client sends and signs `Content-Length: 0` on every body-less GET, LIST and DELETE, which R2 rejects with `403 SignatureDoesNotMatch`. It also finishes closing on a native thread after the storage is closed; on a stopping server that thread fails to load a class from the already closed plugin class loader and aborts the JVM while worlds are still being saved. Side effect: no CRT automatic multipart transfers.
 
 ## Why the built-in endpoint default is treated as "not set"
 

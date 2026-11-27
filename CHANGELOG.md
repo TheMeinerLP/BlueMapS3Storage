@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.3](https://github.com/TheMeinerLP/BlueMapS3Storage/compare/v1.6.2...v1.6.3) (2026-11-27)
+
+
+### Bug Fixes
+
+* **storage:** use the standard s3 client so the server no longer aborts on shutdown ([#104](https://github.com/TheMeinerLP/BlueMapS3Storage/issues/104)) ([f98e087](https://github.com/TheMeinerLP/BlueMapS3Storage/commit/f98e087e30a06268cbf75f4bb2a13332153137dc))
+
 ## [1.6.2](https://github.com/TheMeinerLP/BlueMapS3Storage/compare/v1.6.1...v1.6.2) (2026-11-23)
 
 

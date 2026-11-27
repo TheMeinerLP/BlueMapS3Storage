@@ -18,12 +18,19 @@
 package dev.themeinerlp.bluemap.s3.storage;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import software.amazon.awssdk.core.SdkClient;
+import software.amazon.awssdk.services.s3.DelegatingS3AsyncClient;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.internal.crossregion.S3CrossRegionAsyncClient;
+import software.amazon.awssdk.services.s3.internal.crt.S3CrtAsyncClient;
 import software.amazon.nio.spi.s3.CacheableS3Client;
 import software.amazon.nio.spi.s3.config.S3NioSpiConfiguration;
 
@@ -39,9 +46,67 @@ class PinnedS3ClientProviderTest {
                 .withRegion("us-east-1")
                 .withBucketName(BUCKET)
                 .withCredentials("a", "b");
-        var provider = new PinnedS3ClientProvider(configuration);
-        provider.setCustomHeadersEnabled(true);
-        return provider;
+        return new PinnedS3ClientProvider(configuration);
+    }
+
+    private static PinnedS3ClientProvider newAwsProvider() {
+        var configuration = new S3NioSpiConfiguration()
+                .withRegion("eu-central-1")
+                .withBucketName(BUCKET)
+                .withCredentials("a", "b");
+        return new PinnedS3ClientProvider(configuration);
+    }
+
+    /** Every client in the delegation chain, outermost first. */
+    private static List<SdkClient> delegationChain(S3AsyncClient client) {
+        List<SdkClient> chain = new ArrayList<>();
+        SdkClient current = client;
+        chain.add(current);
+        while (current instanceof DelegatingS3AsyncClient delegating) {
+            current = delegating.delegate();
+            chain.add(current);
+        }
+        return chain;
+    }
+
+    private static void assertNoCrtClient(S3AsyncClient client) {
+        for (SdkClient link : delegationChain(client)) {
+            assertFalse(
+                    link instanceof S3CrtAsyncClient,
+                    "the CRT client aborts the JVM on shutdown, but found " + link.getClass().getName());
+        }
+    }
+
+    @Test
+    void customEndpointClientIsNotTheCrtClient() {
+        var provider = newProvider();
+        try {
+            assertNoCrtClient(provider.generateClient(BUCKET));
+        } finally {
+            provider.close();
+        }
+    }
+
+    @Test
+    void awsClientIsNotTheCrtClient() {
+        var provider = newAwsProvider();
+        try {
+            assertNoCrtClient(provider.generateClient(BUCKET));
+        } finally {
+            provider.close();
+        }
+    }
+
+    @Test
+    void clientFollowsBucketRegionRedirectsLikeTheCrtClientDid() {
+        var provider = newAwsProvider();
+        try {
+            boolean crossRegion = delegationChain(provider.generateClient(BUCKET)).stream()
+                    .anyMatch(S3CrossRegionAsyncClient.class::isInstance);
+            assertTrue(crossRegion, "cross-region access must stay enabled for buckets outside the configured region");
+        } finally {
+            provider.close();
+        }
     }
 
     @Test

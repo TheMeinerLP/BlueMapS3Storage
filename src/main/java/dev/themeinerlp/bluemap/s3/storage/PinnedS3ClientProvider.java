@@ -17,7 +17,10 @@
  */
 package dev.themeinerlp.bluemap.s3.storage;
 
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.S3AsyncClientBuilder;
+import software.amazon.nio.spi.s3.CacheableS3Client;
 import software.amazon.nio.spi.s3.S3ClientProvider;
 import software.amazon.nio.spi.s3.config.S3NioSpiConfiguration;
 
@@ -29,6 +32,12 @@ import software.amazon.nio.spi.s3.config.S3NioSpiConfiguration;
  * (upstream: <a href="https://github.com/awslabs/aws-java-nio-spi-for-s3/issues/784">awslabs/aws-java-nio-spi-for-s3#784</a>).
  * This provider hands out the first client forever and closes it together with the storage.
  * Remove it once the library closes or stops expiring its clients.
+ * <p>
+ * The client is always the standard (Netty) one, never the library's default CRT client. A CRT
+ * client finishes closing on a native thread after {@code close()} has returned; on a stopping
+ * server the plugin class loader is closed by then, the native callback fails to load a class and
+ * the CRT aborts the whole JVM while worlds are still being saved. The standard client is fully
+ * closed when {@code close()} returns.
  */
 final class PinnedS3ClientProvider extends S3ClientProvider implements AutoCloseable {
 
@@ -45,9 +54,27 @@ final class PinnedS3ClientProvider extends S3ClientProvider implements AutoClose
             throw new IllegalStateException("S3 client provider is closed");
         }
         if (client == null) {
-            client = super.generateClient(bucket);
+            client = new CacheableS3Client(standardClientBuilder().build());
         }
         return client;
+    }
+
+    /** Same settings the library applies to its CRT client, on the standard client builder. */
+    private S3AsyncClientBuilder standardClientBuilder() {
+        var builder = S3AsyncClient.builder().crossRegionAccessEnabled(true);
+        var endpointUri = configuration.endpointUri();
+        if (endpointUri != null) {
+            builder.endpointOverride(endpointUri);
+        }
+        var credentialsProvider = configuration.getCredentialsProvider();
+        if (credentialsProvider != null) {
+            builder.credentialsProvider(credentialsProvider);
+        }
+        var region = configuration.getRegion();
+        if (region != null) {
+            builder.region(Region.of(region));
+        }
+        return builder.forcePathStyle(configuration.getForcePathStyle());
     }
 
     @Override
